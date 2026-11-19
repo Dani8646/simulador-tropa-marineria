@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Simulador Tropa Marinería</title>
+<meta name="description" content="Simulador gratuito y no oficial de notas de corte de Tropa y Marinería 2027: tu nota, tu destino según tu orden de preferencia y cuántos aciertos te faltan.">
+<meta property="og:title" content="Simulador Tropa y Marinería 2027"><meta property="og:description" content="Calcula qué nota necesitas y qué destino te tocaría. Gratis, sin registro y no oficial.">
+
+<meta name="theme-color" content="#0a0d08">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Simulador Tropa y Marinería 2027","applicationCategory":"EducationalApplication","operatingSystem":"Web","inLanguage":"es","isAccessibleForFree":true,"description":"Simulador gratuito y no oficial de notas de corte de Tropa y Marinería 2027."}</script>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#000;--panel:#121710;--line:#2c3626;--ink:#ecebdd;--mute:#9aa38a;--ok:#8fd16a;--no:#e5533d;--acc:#d4b25a;color-scheme:dark}
+input[type=range]{width:100%;accent-color:var(--acc);padding:0}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 Figtree,system-ui,sans-serif;min-height:100vh}
+main{max-width:980px;margin:0 auto;padding:24px 16px 64px}
+h1{font:900 clamp(40px,8vw,84px)/.95 "Big Shoulders Display",Impact,sans-serif;margin:8px 0 6px;letter-spacing:.5px}
+h2{font:700 24px "Big Shoulders Display",Impact,sans-serif;margin:0 0 12px}
+.sub{color:var(--mute);max-width:60ch;margin:0 0 20px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin:16px 0}
+.ctrl{display:flex;flex-wrap:wrap;gap:14px;align-items:end}
+label{display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--mute)}
+select,input{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px 10px;font:inherit;width:130px}
+button{font:700 16px Figtree,sans-serif;border:0;border-radius:10px;padding:12px 20px;cursor:pointer;background:var(--acc);color:#161c0e}
+button.sec{background:transparent;color:var(--ink);border:1px solid var(--line)}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.big{display:flex;flex-wrap:wrap;gap:24px;align-items:baseline}
+.num{font:900 clamp(56px,12vw,110px)/1 "Big Shoulders Display",Impact,sans-serif}
+.tag{font-weight:700;padding:3px 10px;border-radius:99px;font-size:14px}
+.ok{background:color-mix(in srgb,var(--ok) 20%,transparent);color:var(--ok)}
+.no{background:color-mix(in srgb,var(--no) 20%,transparent);color:var(--no)}
+.scale{position:relative;height:150px;margin:24px 8px 8px;border-bottom:2px solid var(--line)}
+.mk{position:absolute;bottom:0;width:0;border-left:2px solid var(--mute);transform:translateX(-1px);transition:left .6s cubic-bezier(.2,.8,.2,1)}
+.mk span{position:absolute;top:-22px;left:-11px;width:22px;height:22px;border-radius:50%;background:var(--panel);border:2px solid var(--mute);font:700 12px/18px Figtree;text-align:center}
+.mk.ok{border-color:var(--ok)}.mk.ok span{border-color:var(--ok);color:var(--ok)}
+.mk.no{border-color:var(--no);opacity:.8}.mk.no span{border-color:var(--no);color:var(--no)}
+.needle{position:absolute;bottom:0;top:-18px;border-left:4px solid var(--acc);transition:left .8s cubic-bezier(.2,.8,.2,1)}
+.needle b{position:absolute;top:-6px;left:8px;white-space:nowrap;font:900 22px "Big Shoulders Display",Impact,sans-serif;color:var(--acc)}
+.ticks{display:flex;justify-content:space-between;color:var(--mute);font-size:13px;margin:0 8px}
+.wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:520px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
+th:nth-child(2),td:nth-child(2){text-align:left}
+th{color:var(--mute);font-weight:600;font-size:14px}
+tr.win td{background:color-mix(in srgb,var(--acc) 16%,transparent);font-weight:700}
+.bar{display:inline-block;height:10px;border-radius:5px;background:var(--acc);vertical-align:middle;margin-right:8px}
+.note{font-size:13px;color:var(--mute)}
+.hist{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-size:14px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0}.card{border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--mute)}.card b{display:block;color:var(--ink);font:900 32px "Big Shoulders Display",Impact,sans-serif}
+#ev table{min-width:0}#ev th,#ev td{text-align:right;white-space:nowrap}#ev th:first-child{text-align:left;position:sticky;left:0;background:var(--panel)}#ev .gr td{background:color-mix(in srgb,var(--ok) 14%,transparent)}#ev .or td{background:color-mix(in srgb,var(--no) 14%,transparent)}#ev .fin td{font-size:18px}
+#chart text{fill:var(--mute);font:11px Figtree,sans-serif}#chart .g{stroke:var(--line)}#chart .cut{stroke:var(--mute);stroke-width:1.2;stroke-dasharray:5 4}
+.vgrid{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:16px}@media (max-width:760px){.vgrid{grid-template-columns:1fr}}.tabs{display:flex;gap:8px;margin:14px 0}.mini td,.mini th{padding:4px 8px;font-size:14px}.tips{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}.tips div{border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px}.tips b{display:block;color:var(--acc)}#vdet{color:var(--ink)}#vdet td b{display:inline;font:700 14px Figtree,sans-serif}details{border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin:8px 0;background:#0a0d08}details[open]{border-color:var(--acc)}summary{cursor:pointer;font-weight:700;color:var(--acc)}details p{margin:8px 0}#vmap svg{display:block;border-radius:12px;background:radial-gradient(circle at 50% 40%,#14221f,#000)}#vmap g circle{transition:r .2s}.tabs{flex-wrap:wrap}label:has(#modo),#otra,#mc{display:none}#adv{border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin:16px 0}#adv>summary{font-size:16px}.q{font:900 44px "Big Shoulders Display",Impact,sans-serif;word-break:break-all}.ob{display:flex;gap:6px;align-items:center;padding:4px 0;border-bottom:1px solid var(--line)}.ob span{flex:1}.ob button{padding:2px 10px;font-size:13px}.rw{display:grid;grid-template-columns:170px 1fr 210px;gap:10px;align-items:center;margin:9px 0;font-size:14px}@media (max-width:700px){.rw{grid-template-columns:1fr;gap:4px}}.tk{position:relative;height:22px;background:#0d110b;border-radius:6px}.tk .bd{position:absolute;top:0;bottom:0;background:color-mix(in srgb,var(--acc) 30%,transparent);border-radius:6px}.tk .ct{position:absolute;top:2px;bottom:2px;width:2px;background:var(--acc)}.tk .me{position:absolute;top:-6px;bottom:-6px;width:4px;border-radius:2px;background:var(--ink);box-shadow:0 0 8px var(--ink)}textarea{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px;font:13px monospace;width:100%}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* ===== REDISEÑO VISUAL ===== */
+:root{--acc2:#e08a2e;--cy:#6fb7c9;--glow:0 0 24px color-mix(in srgb,var(--acc) 35%,transparent)}
+body{background:radial-gradient(1100px 520px at 12% -8%,#222a12 0,transparent 60%),radial-gradient(900px 480px at 100% 0,#14241f 0,transparent 55%),#000;background-attachment:fixed}
+main{max-width:1040px}
+h1{background:linear-gradient(95deg,#fff 0,var(--acc) 45%,var(--acc2) 100%);-webkit-background-clip:text;background-clip:text;color:transparent;text-transform:uppercase;letter-spacing:2px;filter:drop-shadow(0 0 18px rgba(255,140,0,.25))}
+h1::after{content:"";display:block;height:4px;width:110px;margin-top:10px;border-radius:4px;background:linear-gradient(90deg,var(--acc),var(--acc2))}
+h2{text-transform:uppercase;letter-spacing:1.2px;display:flex;align-items:center;gap:10px}
+h2::before{content:"";width:6px;height:22px;border-radius:3px;background:linear-gradient(var(--acc),var(--acc2));flex:none}
+.panel{background:linear-gradient(160deg,#171d14 0,#0d110b 60%);border:1px solid #2c3626;border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.05);position:relative;overflow:hidden}
+.panel::before{content:"";position:absolute;inset:0 0 auto 0;height:2px;background:linear-gradient(90deg,transparent,var(--acc),var(--acc2),transparent);opacity:.7}
+.tabs{position:sticky;top:0;z-index:30;background:rgba(0,0,0,.78);backdrop-filter:blur(10px);padding:10px 0;margin:6px 0 10px;border-bottom:1px solid #262f21}
+.tabs button{border-radius:99px;padding:10px 18px;transition:transform .15s,box-shadow .15s}
+.tabs button:not(.sec){background:linear-gradient(95deg,var(--acc),var(--acc2));color:#1b1209;box-shadow:var(--glow)}
+.tabs button.sec:hover,button:hover{transform:translateY(-1px)}
+button{transition:transform .15s,box-shadow .15s,background .15s}
+button:not(.sec){background:linear-gradient(95deg,var(--acc),#e08a2e);box-shadow:0 4px 14px rgba(212,178,90,.25)}
+.cards{grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.card{background:linear-gradient(160deg,#1d2419,#0d110b);border:1px solid #38432f;border-radius:16px;padding:14px 16px;position:relative;transition:transform .2s,border-color .2s,box-shadow .2s}
+.card:hover{transform:translateY(-3px);border-color:var(--acc);box-shadow:var(--glow)}
+.card b{background:linear-gradient(95deg,#fff,var(--acc));-webkit-background-clip:text;background-clip:text;color:transparent;font-size:40px}
+.tag{letter-spacing:.4px}
+.bar{background:linear-gradient(90deg,var(--acc2),var(--acc));box-shadow:0 0 10px rgba(212,178,90,.35);height:12px;border-radius:6px}
+table th{text-transform:uppercase;letter-spacing:.6px;font-size:12px}
+tr:hover td{background:rgba(255,255,255,.03)}
+tr.win td{background:linear-gradient(90deg,rgba(255,182,39,.22),rgba(255,90,54,.10))}
+.rw .tk{height:26px;background:linear-gradient(90deg,#1b0f0c 0,#161c0e 45%,#0f1d12 100%);border:1px solid #2c3626;border-radius:99px}
+.rw .tk .bd{background:linear-gradient(90deg,rgba(255,90,54,.35),rgba(255,182,39,.35));border-radius:99px}
+.rw .tk .me{background:#fff;box-shadow:0 0 12px #fff,0 0 24px var(--cy)}
+details{background:linear-gradient(160deg,#121710,#0a0d08)}
+#chart{background:radial-gradient(500px 220px at 50% 0,#161c0e,transparent);border-radius:14px}
+#chart svg{display:block;overflow:visible}
+#chart .pt{cursor:pointer;transition:r .15s}
+#chart .pt:hover{r:9}
+.leg{display:flex;flex-wrap:wrap;gap:8px 14px;margin:6px 0 2px;font-size:13px;color:var(--mute)}
+.leg i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+@keyframes draw{from{stroke-dashoffset:1600}to{stroke-dashoffset:0}}
+#chart .ln{stroke-dasharray:1600;animation:draw 1.6s ease-out forwards}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.panel{animation:fade .5s ease both}
+@media (prefers-reduced-motion:reduce){#chart .ln{animation:none;stroke-dasharray:none}.panel{animation:none}}
+
+.mtvb{position:fixed;right:16px;bottom:16px;z-index:60;border-radius:99px;padding:12px 18px;box-shadow:0 8px 24px rgba(0,0,0,.6)}
+#mtvp{position:fixed;right:16px;bottom:72px;z-index:60;width:min(380px,calc(100vw - 32px));background:#121710;border:1px solid var(--acc);border-radius:18px;padding:16px;box-shadow:0 12px 40px rgba(0,0,0,.7)}
+#mtvp[hidden]{display:none}
+#mtvq{font:700 22px/1.25 "Big Shoulders Display",Impact,sans-serif;margin:12px 0;min-height:84px}
+#mtvp .leg button{padding:3px 10px;font-size:12px}
+
+#ev .gr td{background:rgba(134,224,90,.16)}#ev .or td{background:rgba(255,90,68,.18)}#ev td,#ev th{padding:7px 9px}
+#ev th:first-child{background:#121710}
+.fi{animation:fade 1.1s ease both}
+#chart{background:radial-gradient(560px 240px at 50% 0,#343b1a,transparent 70%),radial-gradient(400px 200px at 90% 100%,#1f3a22,transparent 70%);border:1px solid #3a4222;box-shadow:0 0 30px rgba(212,178,90,.12) inset}
+#evsum .cards .card:nth-child(1){border-top:3px solid #86e05a}#evsum .cards .card:nth-child(2){border-top:3px solid #d4b25a}#evsum .cards .card:nth-child(3){border-top:3px solid #6fb7c9}#evsum .cards .card:nth-child(4){border-top:3px solid #ff5a44}
+
+.webbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid #262f21}.webbar b{font:800 15px Figtree;letter-spacing:1px;text-transform:uppercase;color:var(--acc)}.webbar .note{flex:1}
+.tabs{position:sticky;top:0;z-index:40;background:rgba(0,0,0,.88);backdrop-filter:blur(8px);padding:8px 0;margin:10px 0}
+.wfoot{max-width:1100px;margin:30px auto 90px;padding:18px 16px 0;border-top:1px solid #262f21;color:var(--mute);font-size:13px}
+
+/* ===== IDENTIDAD MILITAR ===== */
+:root{--bg:#0a0d08;--panel:#121710;--line:#2c3626;--ink:#ecebdd;--mute:#9aa38a;--ok:#8fd16a;--no:#e5533d;--acc:#d4b25a;--acc2:#e08a2e;--cy:#8fb8a0;--olive:#6f8535;--olive2:#8fa94a;--glow:0 0 22px rgba(143,169,74,.3)}
+body{background:radial-gradient(900px 520px at 8% -6%,#232d17 0,transparent 62%),radial-gradient(800px 460px at 100% 4%,#1c2a1e 0,transparent 58%),repeating-linear-gradient(135deg,rgba(255,255,255,.012) 0 2px,transparent 2px 7px),#0a0d08;background-attachment:fixed}
+h1{font:700 clamp(34px,7vw,70px)/1.02 "Stardos Stencil","Big Shoulders Display",Impact,sans-serif;background:linear-gradient(95deg,#ecebdd 0,var(--acc) 55%,var(--olive2) 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 14px rgba(143,169,74,.25))}
+h1::after{background:linear-gradient(90deg,var(--olive2),var(--acc))}
+h2{font-family:"Stardos Stencil","Big Shoulders Display",Impact,sans-serif;font-size:21px;letter-spacing:1.4px}
+h2::before{background:linear-gradient(var(--olive2),var(--acc))}
+.panel{background:linear-gradient(160deg,#151b12 0,#0c100a 65%);border:1px solid var(--line);border-left:3px solid var(--olive);border-radius:14px}
+.panel::before{background:linear-gradient(90deg,transparent,var(--olive2),var(--acc),transparent)}
+button:not(.sec){background:linear-gradient(95deg,var(--olive2),var(--olive));color:#0a0d08;box-shadow:0 4px 14px rgba(111,133,53,.3)}
+.tabs{background:rgba(10,13,8,.9);border-bottom:1px solid var(--line);overflow-x:auto;flex-wrap:nowrap;scrollbar-width:thin}
+.tabs button{white-space:nowrap;flex:none}
+.tabs button:not(.sec){background:linear-gradient(95deg,var(--acc),#b8963f);color:#14100a;box-shadow:0 0 18px rgba(212,178,90,.3)}
+.card{background:linear-gradient(160deg,#181f14,#0d110b);border:1px solid #38432f;border-radius:12px}
+.card:hover{border-color:var(--acc)}
+.hero{position:relative;padding:20px 22px 8px;border:1px solid var(--line);border-radius:18px;margin:14px 0;overflow:hidden;background:radial-gradient(170px 90px at 10% 30%,rgba(111,133,53,.30),transparent 70%),radial-gradient(240px 110px at 72% 18%,rgba(78,92,41,.34),transparent 70%),radial-gradient(190px 100px at 90% 82%,rgba(139,115,60,.22),transparent 70%),radial-gradient(210px 90px at 30% 92%,rgba(60,72,38,.38),transparent 70%),#0f140c}
+.hero .chev{color:var(--acc);display:block;margin-bottom:6px}
+.skip{position:absolute;left:-999px;top:8px;background:var(--acc);color:#0a0d08;padding:8px 14px;border-radius:8px;z-index:100;font-weight:700}.skip:focus{left:8px}
+.faq details{border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:8px 0;background:#0f130d}.faq summary{cursor:pointer;font-weight:700;color:var(--ink)}.faq p,.faq li{color:var(--mute);margin:8px 0}
+.shd{border-left:3px solid var(--acc2);background:#1b1209;border-radius:8px;padding:8px 12px;margin:6px 0;font-size:14px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;scroll-behavior:auto!important}}
+.card b.sm{display:block;font:700 17px Figtree,sans-serif;background:none;-webkit-background-clip:initial;background-clip:initial;-webkit-text-fill-color:var(--ink);color:var(--ink);margin-bottom:4px}
+@media (max-width:560px){.webbar .note{flex:1 1 100%;order:3}.hero{padding:16px}.cards{grid-template-columns:1fr}#cdw{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div id="legalwarn" class="card" hidden style="border-color:var(--no);margin:8px;text-align:center"><b class="sm">Antes de publicar: rellena tus datos legales</b> en las líneas CONFIG del archivo (titular y correo). Este aviso desaparece cuando lo hagas.</div>
+<a class="skip" href="#empezar">Saltar al contenido</a><noscript><p style="padding:20px">Esta herramienta necesita JavaScript activado para funcionar.</p></noscript>
+<main>
+<div class="webbar"><b>Simulador Tropa y Marinería</b><span class="note">Gratis · sin registro · no oficial</span><button class="sec" id="shr">Compartir</button></div>
+<div class="hero"><svg class="chev" width="38" height="32" viewBox="0 0 34 30" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="square"><path d="M3 12L17 3L31 12"/><path d="M3 20L17 11L31 20"/><path d="M3 28L17 19L31 28"/></svg><div style="font:700 13px Figtree;letter-spacing:3px;color:var(--cy);text-transform:uppercase">Convocatoria 2027 · Ejército de Tierra y Armada</div><h1>Tropa y Marinería 2027</h1>
+<p class="sub" style="font-size:18px;max-width:62ch">Calcula qué nota necesitas, qué destino te tocaría según tu orden de preferencia y cuántos aciertos te faltan. Parte de los cortes de 2025 y 2026 y estima los de 2027.</p></div>
+<div class="cards"><div class="card"><b class="sm">1 · Elige tus destinos</b><div class="note">Ordena hasta 10 unidades de un catálogo de 32. La asignación sigue tu orden, no el de los cortes.</div></div><div class="card"><b class="sm">2 · Mete tus aciertos</b><div class="note">Escribe los de tus últimos tests y verás tu nivel, tu evolución y tu margen.</div></div><div class="card"><b class="sm">3 · Mira tus opciones</b><div class="note">Probabilidad de cada destino, aciertos que te faltan, vida en cada ciudad y entrenador.</div></div></div>
+<section class="panel" id="empezar"><h2>Empieza aquí</h2>
+<p class="note" style="margin-top:0">Escribe los aciertos (sobre 105) de tus últimos tests, separados por comas. Tus datos se guardan solo en tu navegador: no los enviamos a ningún sitio.</p>
+<div class="ctrl"><label>Mis aciertos<input id="qa" placeholder="Ej.: 48, 52, 55, 58, 61" style="width:min(380px,90vw)"></label><button id="qgo">Cargar mis tests</button><span class="note" id="qm"></span></div>
+<div id="demob" style="margin-top:10px"></div></section>
+<div id="cdw" class="cards" style="margin:10px 0 0"></div>
+<div class="tabs"><button id="t1">Simulador</button><button id="t4" class="sec">Entrenar</button><button id="t3" class="sec">Análisis</button><button id="t2" class="sec">Vida y destinos</button><button id="t5" class="sec">Mi resumen</button><button id="t6" class="sec">Cómo funciona</button><button id="t7" class="sec">Legal</button></div>
+<div id="tabSim">
+<p class="sub">Cada simulación genera un examen, tu nota y diez cortes hipotéticos. La asignación sigue tu orden de preferencia, no el de los cortes.</p>
+
+<section class="panel ctrl" aria-label="Controles">
+  <label>Modo examen
+    <select id="modo"><option value="media">Cerca de mi media</option><option value="azar">Totalmente aleatorio</option></select>
+  </label>
+  <label>Baremo (sobre 40)
+    <input id="bar" type="number" min="0" max="40" step="0.5" value="19">
+  </label>
+  <label style="min-width:220px">Variación de todos los cortes: <b id="sv" style="color:var(--ink)">0,00</b>
+    <input id="sh" type="range" min="-0.5" max="0.5" step="0.05" value="0"></label>
+  <button id="otra">Otra simulación</button>
+  <button id="mc" class="sec">Lanzar 2.000 simulaciones</button>
+</section>
+
+<section class='panel'><h2>Cómo voy</h2><div id='cv'></div></section>
+<section class='panel'><h2>Misiones y maniobras internacionales según tu orden</h2>
+<p class='note' style='margin-top:0'>Qué posibilidades tendrías de ir al exterior en cada destino de tu lista. Se actualiza si cambias el orden.</p>
+<div id='msum' style='margin:8px 0'></div>
+<div class='wrap'><table><thead><tr><th>Orden</th><th>Destino</th><th>Brigada o mando</th><th>Posibilidad de misión (mi valoración)</th><th>Qué hace en el exterior</th><th>Te toca</th></tr></thead><tbody id='mtab'></tbody></table></div>
+<p class='note'>Datos de prensa y revistas de Defensa (2024–2026): hay unos 4.000 militares desplegados en 15 países; los grandes escenarios son el flanco este de la OTAN (Letonia, Eslovaquia, Rumanía), el Líbano y las operaciones navales. «Alta/Media/Baja» es mi valoración según el perfil de la brigada, no un dato oficial. Los turnos suelen ser de unos 6 meses y los cubren por rotación: pregunta en tu unidad cómo se reparten y si son voluntarios.</p></section>
+<section class='panel'><h2>Mi lista de destinos</h2>
+<p class='note' style='margin-top:0;color:var(--acc)'>Esta es una lista de ejemplo: cámbiala por la tuya, en tu orden de preferencia.</p>
+<p class='note' style='margin-top:0'>Elige tú qué destino va en cada puesto y cámbialos de orden. Todo se recalcula: probabilidades, notas, mapa, presupuesto y fines de semana. A la derecha ves el corte de 2026, las plazas y tu probabilidad de que te toque ese puesto.</p>
+<div id='lslots'></div><div id='lshd' style='margin-top:10px'></div><div class='ctrl' style='margin-top:10px'><button class='sec' id='lreset'>Volver a la lista original</button></div></section>
+<section class="panel" aria-live="polite">
+  <div class="big">
+    <div><div class="note">Nota final estimada</div><div class="num" id="pf">–</div></div>
+    <div><div class="note">Te asignarían</div><div style="font:700 26px Figtree" id="dest">–</div><div id="dif" class="note"></div></div>
+  </div>
+  <div class="scale" id="scale"></div>
+  <div class="ticks" id="ticks"></div>
+  <p class="note">Los círculos son los cortes hipotéticos (número = tu preferencia). Verde: los superas. Rojo: no llegas.</p>
+</section>
+
+<section class="panel">
+  <h2>¿Qué nota necesito para cada destino?</h2>
+  <p class="note" style="margin-top:0">Estimación mía para el 1.er ciclo de 2027, no oficial. Banda ámbar: rango probable del corte. Línea ámbar fina: corte estimado. Línea blanca: tu nota con los aciertos que elijas.</p>
+  <label>Mis aciertos: <b id="n27v" style="color:var(--ink)"></b><input id="n27a" type="range" min="30" max="70" value="52"></label>
+  <p id="n27s" style="margin:10px 0"></p><div id="n27r"></div>
+</section>
+<section class="panel">
+  <h2>Tu capacidad real de llegar a cada destino</h2>
+  <p class="note" style="margin-top:0">Se recalcula con tu evolución: cada test que añades cambia tu nivel y estas probabilidades. También se actualiza si cambias el baremo o la variación de los cortes.</p>
+  <label style="margin:8px 0">Cómo cuento tus tests<select id="pm" style="width:260px"><option value="rec">Más peso a los últimos</option><option value="eq">Todos por igual</option></select></label>
+  <label style="margin:8px 0">Cortes que uso<select id="pru" style="width:300px"><option value="0">Media estimada (2.º y 1.er ciclo 2026 + 2025)</option><option value="1">Solo 2.º ciclo 2026 (más prudente)</option><option value="2">Mi estimación 1.er ciclo 2027</option></select></label>
+  <p id="pbs"></p>
+  <div class="wrap"><table><thead><tr><th>Orden</th><th>Destino</th><th>Corte esperado</th><th>Superar el corte</th><th>Te asignarían este</th><th>Este o mejor</th></tr></thead><tbody id="pbb"></tbody></table></div>
+  <p class="note">Simula 4.000 exámenes a partir de tu nivel y de la variación entre tus tests, con cortes hipotéticos. «Te asignarían este» respeta tu orden: solo cuenta cuando no llegas a ninguno de los anteriores. No es una predicción para 2027.</p>
+</section>
+
+<section class="panel">
+  <h2>Examen y puntuación</h2>
+  <div class="wrap"><table><thead><tr><th>Aciertos</th><th>Fallos</th><th>Blancas</th><th>Total</th><th>Oposición*</th><th>Concurso</th><th>Final</th></tr></thead><tbody><tr id="exam"></tr></tbody></table></div>
+  <p class="note" id="formula"></p>
+  <p class="note">*Calculada con la fórmula que sale de tus tests reales: oposición = 1,425 + aciertos / 15. En tus datos los fallos no restan. Puede no coincidir con la nota oficial del examen real.</p>
+</section>
+
+<section class="panel">
+  <h2>Destinos en tu orden</h2>
+  <div class="wrap"><table><thead><tr><th>Orden</th><th>Destino</th><th>Código</th><th>Corte simulado</th><th>Diferencia</th><th>¿Supero?</th></tr></thead><tbody id="tbody"></tbody></table></div>
+  <p class="note">Cortes hipotéticos: media ponderada de 2.º ciclo 2026 (50 %), 1.er ciclo 2026 (30 %) y 2.º ciclo 2025 (20 %, donde hay dato), más ruido aleatorio con un componente común a todas las unidades. Nunca son cortes oficiales.</p>
+</section>
+
+<section class="panel" id="mcp" hidden>
+  <h2>Resultado de 2.000 simulaciones</h2>
+  <div class="wrap"><table><thead><tr><th>Orden</th><th>Destino</th><th>Código</th><th>% de veces asignado</th><th>% este destino o mejor</th></tr></thead><tbody id="mcb"></tbody></table></div>
+  <p class="note" id="mcn"></p>
+</section>
+
+<section class="panel">
+  <h2>¿Y si saco…?</h2>
+  <label style="width:100%">Aciertos en el examen real: <b id="wiv" style="color:var(--ink)">56</b>
+    <input id="wi" type="range" min="30" max="90" value="56"></label>
+  <p id="wis" style="margin:12px 0 0"></p>
+  <p class="note">Usa el corte esperado de cada destino y respeta tu orden. La probabilidad indica cuántas veces superarías ese corte teniendo en cuenta su variación.</p>
+</section>
+
+<section class="panel">
+  <h2>¿Cuántos aciertos necesito?</h2>
+  <p class="note" id="needsum"></p>
+  <div class="wrap"><table><thead><tr><th>Orden</th><th>Destino</th><th>Corte esperado</th><th>Aciertos para 50 %</th><th>Aciertos para 80 %</th><th>Prob. con mi media</th></tr></thead><tbody id="needb"></tbody></table></div>
+  <p class="note">Se calcula sobre el corte esperado (media ponderada de tus datos) con una variación típica de ±0,19. «Aciertos para 80 %» es el nivel con el que superarías ese corte 8 de cada 10 veces. Según tus tests, cada acierto vale 0,067 de oposición (unas 0,047 de nota final).</p>
+</section>
+
+<section class="panel">
+  <h2>Tu objetivo</h2>
+  <div class="ctrl"><label>Destino objetivo<select id="obj" style="width:240px"></select></label>
+  <label>Fecha del examen (opcional)<input id="fx" type="date" style="width:170px"></label></div>
+  <p id="objs" style="margin:12px 0 0"></p>
+  <p class="note">Usa el corte esperado del destino con su variación típica y la fórmula de tus tests. La tendencia es una recta sobre muy pocos tests: orientativa.</p>
+</section>
+
+<section class="panel">
+  <h2>Baremo contra aciertos</h2>
+  <div class="wrap"><table><thead><tr><th>Baremo (sobre 40)</th><th>Nota final con tu media</th><th>Destino esperado</th><th>Equivale a (aciertos, frente a 19)</th></tr></thead><tbody id="bt"></tbody></table></div>
+  <p class="note" id="btn"></p>
+</section>
+
+<section class="panel">
+  <h2>Mis méritos (baremo)</h2>
+  <p class="note" style="margin-top:0">Apunta tus méritos con los puntos que digan las bases de la convocatoria. No pongo cifras yo: la tabla oficial no la tengo verificada, así que «puntos» y «máximo» los rellenas tú. El total se limita a 40 y se guarda en tu navegador.</p>
+  <div id="mer" class="wrap"></div>
+  <div class="ctrl" style="margin-top:8px"><button class="sec" id="meradd">+ Añadir mérito</button><button id="meruse">Usar como mi baremo</button><label>¿Y si consigo… puntos más? <b id="mexv" style="color:var(--ink)">0</b><input id="mex" type="range" min="0" max="15" value="0" style="width:200px"></label></div>
+  <div id="mersum" style="margin:10px 0"></div><div id="merchart"></div>
+</section>
+
+
+<section class="panel">
+  <h2>Tu evolución real</h2>
+  <div id="evsum"></div>
+  <div id="chart"></div><div id="evd" style="margin-top:10px"><h3 style="margin:6px 0;font:700 14px Figtree;letter-spacing:1px;text-transform:uppercase;color:var(--acc)">Explora tu evolución</h3><div class="ctrl" style="margin-bottom:8px"><label>Últimos tests: <b id="evnnv" style="color:var(--ink)"></b><input id="evnn" type="range" min="3" max="20" value="20" style="width:200px"></label><label>Mi objetivo (aciertos): <b id="evgv" style="color:var(--ink)">sin objetivo</b><input id="evgl" type="range" min="0" max="75" value="0" style="width:200px"></label><label>¿Y si el próximo test es de…? <b id="evnxv" style="color:var(--ink)">sin simular</b><input id="evnx" type="range" min="0" max="80" value="0" style="width:200px"></label></div><div id="evchips"></div><div id="evdet"></div></div><div id="evtip" style="position:fixed;display:none;pointer-events:none;background:#121710;border:1px solid var(--acc);border-radius:10px;padding:7px 11px;font-size:13px;z-index:70"></div>
+  <p class="note">Línea ámbar: tu nota final con el baremo actual. Discontinuas: cortes esperados de TEAR, Isabel la Católica, Galicia 64 y América 66.</p>
+  <div class="wrap" id="ev"></div>
+  <p class="note">*Oposición calculada con la fórmula que sale de tus tests (no copiada de una captura). «Destino» usa el corte esperado de cada unidad y respeta tu orden. T3* y T4* son tus exámenes 3 y 4 anteriores, sin captura de sesión. La sesión 15 es parcial (15 preguntas) y no cuenta en medias ni gráfica.</p>
+  <div class="ctrl" style="margin:14px 0">
+    <label>Sesión<input id="ns" style="width:80px" placeholder="19"></label>
+    <label>Fecha<input id="nd" style="width:120px" placeholder="18.11.2026"></label>
+    <label>Aciertos<input id="na" type="number" min="0" max="105" style="width:90px"></label>
+    <label>Fallos<input id="nfl" type="number" min="0" max="105" style="width:90px"></label>
+    <label>Nota oficial (opcional)<input id="nn" style="width:130px" placeholder="5,158"></label>
+    <label>Áreas V,E,P,N,M,Me,A<input id="nar" style="width:190px" placeholder="9,8,9,6,8,12,9"></label>
+    <button id="nadd">Añadir test</button>
+    <button id="nclr" class="sec">Borrar tests añadidos</button>
+  </div>
+  <p id="prog" style="margin:12px 0"></p>
+  <h2 style="font-size:20px">Media por áreas (tests completos)</h2>
+  <div id="areas"></div>
+  <p class="note">Barras sobre 15 por área (105 preguntas entre 7 áreas, suposición mía). En tus tests la nota depende solo de los aciertos: fallar o dejar en blanco vale lo mismo. Comprueba en las bases si el examen oficial penaliza los fallos.</p>
+</section>
+
+<section class="panel">
+  <h2>Últimas simulaciones</h2>
+  <div class="hist" id="hist"><span class="note">Aún no hay ninguna.</span></div>
+</section>
+
+
+</div>
+<div id='tabAn' hidden>
+<section class='panel'><h2>Evolución de los cortes</h2>
+<div class='wrap'><table><thead><tr><th>Orden</th><th>Destino</th><th>2.º ciclo 2025</th><th>1.er ciclo 2026</th><th>2.º ciclo 2026</th><th>Tendencia</th><th>Aspirantes / plaza</th></tr></thead><tbody id='ctab'></tbody></table></div>
+<p class='note'>Rojo ▲: el corte sube (más difícil). Verde ▼: baja. Guiones donde no tengo dato. Los cortes del 2.º ciclo 2026 están contrastados con el listado oficial del 23 de octubre de 2026. Saboya 6 solo tiene el corte del 2.º ciclo 2026, así que su corte esperado es ese valor. La tendencia compara el último corte con el anterior disponible.</p></section>
+<section class='panel'><h2>¿Qué mueve más tu probabilidad?</h2>
+<div class='wrap'><table><thead><tr><th>Escenario</th><th>Te toca el 1.º de tu lista</th><th>Entras en los 5 primeros</th></tr></thead><tbody id='stab'></tbody></table></div>
+<p class='note'>Parte de tu nivel actual y baremo. Compara cuánto aporta un acierto, un punto de baremo o que los cortes cambien. Valores aproximados (simulación).</p></section>
+</div>
+<div id='tabEnt' hidden>
+<section class='panel'><h2>Hoy toca</h2><div id='ehoy'></div></section>
+<section class='panel'><h2>Entrenador psicotécnico</h2>
+<div class='ctrl'><label>Ejercicio<select id='etp' style='width:270px'><option value='calc'>Numérico: cálculo mental</option><option value='ser'>Numérico: series</option><option value='dig'>Memoria: dígitos hacia delante</option><option value='inv'>Memoria: dígitos hacia atrás</option><option value='mec'>Mecánico: palancas, engranajes y poleas</option><option value='per'>Percepción: contar y comparar</option><option value='esp'>Espacial: giros de figuras</option></select></label><label>Nivel<select id='etd' style='width:130px'><option value='1'>Fácil</option><option value='2' selected>Media</option><option value='3'>Difícil</option></select></label><button id='ego'>Empezar (10 rondas)</button></div>
+<div id='earea' style='margin:14px 0;min-height:110px'></div><div id='ehist'></div></section>
+<section class='panel'><h2>Evolución por áreas</h2>
+<div class='ctrl' id='achk'></div><div id='achart'></div><div class='wrap' id='atab'></div>
+<p class='note'>Cada línea son los aciertos de esa área en cada test (máximo habitual: unos 15).</p></section>
+<section class='panel'><h2>Seguimiento físico</h2>
+<div class='ctrl'><label>Prueba<select id='gp' style='width:230px'></select></label><label>Marca (min:seg o repeticiones)<input id='gv' style='width:150px' placeholder='9:30 o 25'></label><label>Mi objetivo<input id='go' style='width:110px' placeholder='8:30 o 40'></label><button id='gadd'>Añadir marca</button></div>
+<div id='gch' style='margin-top:10px'></div>
+<p class='note'>Los mínimos y baremos físicos oficiales hay que sacarlos de las bases de la convocatoria: no los invento. Pon tu objetivo y sigue tu progreso. Se guarda solo en tu navegador: usa «Mi resumen» para la copia de seguridad.</p></section>
+</div>
+<div id="tabVida" hidden>
+<section class="panel">
+  <h2>Mapa de tus destinos</h2>
+  <label style="margin-bottom:10px">Mi ciudad de origen<select id="org" style="width:200px"></select></label>
+  <label style="margin-bottom:10px">Tamaño del punto según (más grande = mejor)<select id="vmet" style="width:270px"><option value="p">Probabilidad de que te toque</option><option value="s">Dinero que te sobra al mes</option><option value="d">Cercanía a mi ciudad</option><option value="r">Alquiler de habitación más bajo</option></select></label>
+  <div class="ctrl" style="margin-bottom:8px"><button class="sec" id="vz1" aria-label="Acercar">+</button><button class="sec" id="vz2" aria-label="Alejar">−</button><button class="sec" id="vz0">Vista completa</button><button class="sec" id="vprev" aria-label="Destino anterior">◀</button><button id="vtour">▶ Tour</button><button class="sec" id="vnext" aria-label="Destino siguiente">▶</button><label style="flex-direction:row;align-items:center;gap:6px"><input id="vrt" type="checkbox" style="width:auto"> Rutas a casa</label><label>Comparar con<select id="vcmp" style="width:230px"></select></label></div>
+  <div class="vgrid"><div id="vmap" style="touch-action:pan-y;cursor:grab"></div><div id="vdet" class="card"></div></div>
+  <div id="vcmpo" class="wrap"></div><div id="vtip" style="position:fixed;display:none;pointer-events:none;background:var(--panel);border:1px solid var(--acc);border-radius:8px;padding:6px 10px;font-size:13px;z-index:20"></div>
+  <p class="note">Cada destino tiene su color y el tamaño del punto sigue la métrica elegida. Arrastra para mover, rueda para hacer zoom, pasa el ratón para ver datos y pulsa un destino para acercarte. Con «Tour» recorres tus diez destinos solos; también puedes usar las flechas ← → del teclado.</p>
+  <p class="note">Mapa esquemático; pulsa un destino. Ubicaciones orientativas: verifícalas en la convocatoria. Todos los costes son <b>estimaciones mías</b>, no datos oficiales: contrástalos con Idealista/Fotocasa y edítalos en el presupuesto.</p>
+</section>
+<section class="panel">
+  <h2>Radar de vida: un destino frente a otro</h2>
+  <p class="note" style="margin-top:0">El destino A es el que tienes elegido en el mapa. Elige un destino B para compararlos en seis ejes (más lejos del centro = mejor). Naturaleza, ocio y clima son valoraciones orientativas mías.</p>
+  <div id="vchips" class="leg" style="margin:8px 0"></div>
+  <div class="vgrid"><div id="vrad"></div><div id="vradl" class="card"></div></div>
+</section>
+<section class="panel">
+  <h2>Tu presupuesto mensual</h2>
+  <div class="ctrl">
+    <label>Sueldo neto (€/mes)<input id="vsal" type="number" value="1150" step="50"></label>
+    <label>Vivienda<select id="vviv" style="width:230px"><option value="hab">Habitación compartida</option><option value="piso">Piso de 1 dormitorio</option><option value="cuartel">Alojamiento militar (0 €, si hay)</option></select></label>
+    <label>Viajes a casa al mes<input id="vnv" type="number" min="0" max="4" value="1"></label>
+    <label style="flex-direction:row;align-items:center;gap:8px"><input id="vcar" type="checkbox" style="width:auto"> Con coche (~250 €/mes)</label>
+  </div>
+  <div class="wrap"><table><thead><tr><th>Orden</th><th>Destino</th><th>Vivienda</th><th>Vida</th><th>Transporte</th><th>Viajes</th><th>Te sobra</th><th>Gasto inicial</th></tr></thead><tbody id="vtab"></tbody></table></div><h3 style="margin:14px 0 6px;font:700 13px Figtree;letter-spacing:1px;text-transform:uppercase;color:var(--acc)">Cuánto te sobra al mes (pulsa un destino)</h3><div id="vsb"></div>
+  <p class="note">Partida: unos 1.150 €/mes netos, 14 pagas (la prensa habla de 1.000–1.200 € para un soldado, antes de complementos). «Vida» incluye comida, móvil y ocio. «Gasto inicial» = fianza + primer mes (+ mobiliario básico en piso). No incluye misiones ni trienios.</p>
+</section>
+<section class="panel">
+  <h2>Fines de semana en casa (en coche)</h2>
+  <div class="ctrl">
+    <label>Sales el viernes a las<input id="fv" type="time" value="15:30" style="width:120px"></label>
+    <label>Quieres estar de vuelta el domingo a las<input id="fd" type="time" value="23:00" style="width:120px"></label>
+    <label>Parada cada 2 h (min)<input id="fp" type="number" value="15" min="0" max="60"></label>
+    <label>Consumo (l/100 km)<input id="fc" type="number" value="6" step="0.5"></label>
+    <label>Gasolina (€/l)<input id="fg" type="number" value="1.55" step="0.05"></label>
+  </div>
+  <p id="fsum" style="margin:12px 0"></p>
+  <h3 style="margin:10px 0 6px;font:700 13px Figtree;letter-spacing:1px;text-transform:uppercase;color:var(--acc)">Tu fin de semana de viernes a domingo</h3><div id="ftl" style="margin:6px 0 14px"></div><div class="wrap"><table><thead><tr><th>Orden</th><th>Destino</th><th>Te toca</th><th>Km</th><th>Conducción</th><th>Llegas a casa el viernes</th><th>Sales el domingo</th><th>Horas en casa</th><th>Horas al volante</th><th>Gasolina ida y vuelta</th><th>Veredicto</th></tr></thead><tbody id="ftab"></tbody></table></div>
+  <p class="note">Km y tiempos son <b>estimaciones mías sin tráfico</b>, no de un navegador. Pulsa «ruta» para ver el dato exacto en Google Maps. Añade margen en puentes, nieve (Jaca, Siero) y obras. «Horas en casa» es el tiempo entre que llegas el viernes y sales el domingo. Cuenta también el cansancio: conducir de noche tras una semana de instrucción es más arriesgado.</p>
+</section>
+<section class="panel">
+  <h2>Ranking a tu medida</h2>
+  <p class="note" style="margin-top:0">Dale peso a lo que te importa. No cambia tu orden de preferencias: solo te dice qué destinos encajan más con tu vida.</p>
+  <details style="margin:8px 0"><summary>Ajustar lo que te importa</summary><div class="ctrl">
+    <label>Probabilidad<input id="wp" type="range" min="0" max="5" value="3"></label>
+    <label>Dinero<input id="ws" type="range" min="0" max="5" value="3"></label>
+    <label>Cerca de mi ciudad<input id="wd" type="range" min="0" max="5" value="2"></label>
+    <label>Naturaleza<input id="wn" type="range" min="0" max="5" value="3"></label>
+    <label>Ocio y ciudad<input id="wo" type="range" min="0" max="5" value="2"></label>
+    <label>Clima suave<input id="wc" type="range" min="0" max="5" value="2"></label>
+  </div></details>
+  <div id="vpod" class="cards"></div><div class="wrap"><table><thead><tr><th>#</th><th>Destino</th><th>Encaje (0–100)</th></tr></thead><tbody id="vrank"></tbody></table></div>
+  <p class="note">Naturaleza, ocio y clima son valoraciones orientativas mías (1–5).</p>
+</section>
+<section class="panel">
+  <h2>Lo que no suele mirarse</h2>
+  <div id="vtips"></div>
+</section>
+</div>
+<div id='tabRes' hidden>
+<section class='panel'><h2>Resumen para compartir</h2><div id='rsum'></div>
+<textarea id='rtxt' rows='12' readonly style='margin-top:10px'></textarea><div class='ctrl' style='margin-top:8px'><button id='rcp'>Copiar texto</button><span id='rcm' class='note'></span></div></section>
+<section class='panel'><h2>Copia de seguridad y carga de sesiones</h2>
+<p class='note' style='margin-top:0'>Tus tests añadidos, entrenamientos y marcas se guardan solo en este navegador. Genera la copia, guárdala en tus notas y pégala aquí para recuperarla.</p>
+<div class='ctrl'><button id='bkg'>Generar copia</button><button class='sec' id='bki'>Importar copia pegada</button><span id='bkm' class='note'></span></div>
+<textarea id='bk' rows='5' placeholder='Aquí aparece la copia, o pega una para importarla' style='margin-top:8px'></textarea>
+<h2 style='font-size:20px;margin-top:16px'>Añadir varias sesiones de golpe</h2>
+<p class='note' style='margin:0 0 6px'>Una por línea: sesión;fecha;aciertos;fallos;nota oficial;V,E,P,N,M,Me,A (los tres últimos son opcionales).</p>
+<textarea id='bl' rows='4' placeholder='19;18.11.2026;57;46;5.225;9,8,7,6,8,10,9'></textarea><div class='ctrl' style='margin-top:8px'><button id='bkb'>Añadir sesiones</button></div></section>
+</div>
+<button id="mtvb" class="mtvb" aria-expanded="false" aria-controls="mtvp">Motivación</button>
+<div id="mtvp" hidden role="dialog" aria-label="Generador de motivación"><div class="leg" id="mtvc" style="margin:0"></div><div id="mtvq" aria-live="polite"></div><div class="ctrl"><button id="mtvo">Otra</button><button class="sec" id="mtvy">Copiar</button><button class="sec" id="mtvx" aria-label="Cerrar">Cerrar</button><span id="mtvm" class="note"></span></div></div>
+<div id="tabInfo" hidden>
+<section class="panel faq"><h2>Cómo funciona</h2>
+<p class="note" style="margin-top:0">Todo lo que ves son cálculos aproximados con datos públicos. Aquí tienes cómo se hacen y dónde se equivocan.</p>
+<details open><summary>¿Cómo se calcula mi nota?</summary><p>Nota de concurso = baremo ÷ 40 × 10. Puntuación final = (7 × nota de oposición + 3 × nota de concurso) ÷ 10. La nota de oposición se estima como 1,425 + aciertos ÷ 15: es una aproximación sacada de tests de práctica (donde los fallos no restaban). <b>La nota oficial puede calcularse de otra forma</b>; comprueba las bases.</p></details>
+<details><summary>¿Cómo se asigna el destino?</summary><p>Se te asigna el primer destino de tu lista cuyo corte igualas o superas, aunque superes también los siguientes. Por eso el orden de tu lista es lo que más cambia el resultado.</p></details>
+<details><summary>¿Qué es un destino «tapado»?</summary><p>Si el corte esperado de un destino es igual o mayor que el de otro que pusiste antes, casi nadie llega a él: quien lo supera ya habría entrado en el anterior. En «Mi lista de destinos» te aviso de esos casos. No te cambio nada: decides tú si te interesa subirlo.</p></details>
+<details><summary>¿De dónde salen los cortes de 2027?</summary><p>Son estimaciones mías, no oficiales: 0,6 × corte del 1.er ciclo de 2026 + 0,4 × corte del 2.º ciclo de 2026 + 0,1 (y +0,156 sobre el 2.º ciclo si solo hay ese). Cada destino lleva un margen según sus plazas. Los cortes han llegado a moverse más de un punto de un ciclo a otro, así que tómalos como orientación. Cuando salgan los reales, puedes escribirlos en «Mi lista de destinos».</p></details>
+<details><summary>¿Qué hacen las 2.000 simulaciones?</summary><p>Parten de tu nivel (media de tus tests, con más peso a los recientes) y su variación, añaden ruido a los cortes y cuentan en cuántos casos te toca cada destino. No son predicciones: muestran escenarios posibles.</p></details>
+<details><summary>¿Qué datos son reales y cuáles son estimaciones?</summary><p><b>Reales (recopilados):</b> cortes, plazas y aspirantes de 2025 y 2026 que aparecen en las tablas. <b>Estimaciones:</b> cortes de 2027, probabilidades, costes de vida, tiempos de viaje y valoraciones de misiones, naturaleza, ocio y clima. Todo lo estimado puedes contrastarlo y editarlo.</p></details>
+<details><summary>¿Se guardan mis datos?</summary><p>Solo en tu navegador. No hay cuentas ni formularios, y tus datos no se envían a ningún sitio. Si borras los datos del navegador o cambias de dispositivo, los perderás: usa la copia de seguridad de «Mi resumen».</p></details>
+<details><summary>Límites que conviene recordar</summary><ul><li>Pocos tests dan un nivel poco fiable: cuantos más metas, mejor.</li><li>El corte real depende de lo que pidan los demás candidatos, algo que no se puede saber.</li><li>Esta herramienta no garantiza plaza en ningún destino.</li><li>Las bases oficiales de la convocatoria mandan siempre sobre lo que veas aquí.</li></ul></details>
+</section></div>
+<div id="tabLegal" hidden>
+<section class="panel faq"><h2>Aviso legal y privacidad</h2>
+<p class="note" style="margin-top:0">Última actualización: 19 de noviembre de 2026.</p>
+<details open><summary>Aviso legal</summary>
+<p><b>Titular:</b> <span data-l="titular"></span>. <b>Contacto:</b> <span data-l="email"></span>.</p>
+<p>Este sitio web es una herramienta informativa y gratuita, sin publicidad y sin ánimo de lucro, para personas que se preparan para acceder a Tropa y Marinería. Calcula estimaciones y simulaciones orientativas.</p>
+<p><b>Independencia.</b> No tiene relación con el Ministerio de Defensa, el Ejército de Tierra, la Armada ni ningún otro organismo oficial, ni cuenta con su respaldo. Los nombres de unidades, cuerpos y brigadas se usan solo para identificarlos y pertenecen a sus titulares. No se usan escudos, emblemas ni logotipos oficiales.</p>
+<p><b>Sin garantías.</b> Los cortes de 2027, las probabilidades, los costes de vida, los tiempos de viaje y las valoraciones son estimaciones. No garantizan plaza ni destino, y pueden contener errores. El titular no se responsabiliza de las decisiones que se tomen basándose en esta herramienta. Consulta siempre las bases oficiales de la convocatoria.</p>
+<p><b>Propiedad intelectual.</b> El diseño y el código de la herramienta pertenecen a su titular. Los datos de cortes proceden de listados públicos de convocatorias. Si ves un dato incorrecto o crees que se vulnera algún derecho tuyo, escribe al correo de contacto y se corregirá o retirará.</p>
+<p><b>Ley aplicable.</b> Legislación española.</p></details>
+<details><summary>Política de privacidad</summary>
+<p><b>Responsable:</b> <span data-l="titular"></span> (<span data-l="email"></span>).</p>
+<p><b>Datos que introduces.</b> Tus aciertos, tu lista de destinos, tu baremo, tu ciudad de origen, tus méritos y tus entrenamientos se guardan solo en tu navegador. Este sitio no los recibe ni los envía a ningún servidor. No hay cuentas, formularios ni registro.</p>
+<p data-gc="on"><b>Estadísticas de visitas.</b> Este sitio usa GoatCounter, un servicio de analítica sin cookies, para contar visitas de forma agregada (páginas vistas, país, tipo de dispositivo y de dónde llegas). Según su documentación, no guarda de forma persistente datos personales ni te identifica. Para cargar su script, tu navegador contacta con los servidores de GoatCounter, que técnicamente reciben tu dirección IP al responder a esa petición. Base jurídica: interés legítimo en conocer el uso de la herramienta (art. 6.1.f RGPD). Puedes bloquearlo con tu navegador o con un bloqueador y la herramienta seguirá funcionando igual.</p>
+<p data-gc="off"><b>Estadísticas.</b> Este sitio no usa herramientas de analítica.</p>
+<p><b>Alojamiento.</b> La página la sirve un proveedor externo (por ejemplo, GitHub Pages), que puede registrar datos técnicos de conexión, como la dirección IP, según su propia política de privacidad.</p>
+<p><b>Tus derechos.</b> Puedes pedir acceso, rectificación, supresión, oposición, limitación y portabilidad escribiendo al correo de contacto. Si crees que se ha vulnerado tu privacidad, puedes reclamar ante la Agencia Española de Protección de Datos (aepd.es).</p></details>
+<details><summary>Cookies y almacenamiento local</summary>
+<p>Este sitio <b>no usa cookies</b> y no carga fuentes tipográficas ni recursos de terceros para su aspecto. Usa el almacenamiento local de tu navegador únicamente para guardar lo que tú introduces y tus preferencias, algo necesario para el servicio que pides. Puedes borrarlo en cualquier momento con el botón «Borrar mis datos guardados» o desde los ajustes de tu navegador.</p></details>
+<details><summary>Condiciones de uso</summary>
+<ul><li>Úsala como orientación personal, no como única base para decisiones importantes.</li><li>Se ofrece «tal cual», sin garantías de exactitud, disponibilidad ni resultados.</li><li>Puede modificarse o retirarse en cualquier momento.</li><li>No uses la herramienta para hacerte pasar por un organismo oficial ni para presentar sus estimaciones como datos oficiales.</li></ul></details>
+<details><summary>Fuentes de los datos</summary>
+<ul><li>Cortes, plazas y aspirantes del 2.º ciclo de 2026: listado de clasificados de octubre de 2026.</li><li>Cortes del 1.er ciclo de 2026 y de 2025: datos recopilados de convocatorias anteriores.</li><li>Misiones y maniobras: prensa y revistas de Defensa (2024–2026).</li><li>Costes de vida y tiempos de viaje: estimaciones propias, sin datos oficiales.</li></ul></details>
+</section></div>
+</main>
+<footer class="wfoot"><p><b>Aviso importante.</b> Herramienta gratuita e independiente. No está afiliada al Ministerio de Defensa, al Ejército de Tierra, a la Armada ni a ningún organismo oficial, y no es una fuente oficial. Los cortes de 2027 son <b>estimaciones</b> calculadas a partir de datos de 2025 y 2026; sirven para hacerte una idea, no garantizan plaza ni predicen la convocatoria real. Contrasta siempre con las bases oficiales publicadas.</p>
+<p><b>Fuentes.</b> Cortes del 2.º ciclo de 2026: listado de clasificados de octubre de 2026. Cortes del 1.er ciclo de 2026 y de 2025: datos recopilados de convocatorias anteriores (verifícalos). Misiones: prensa y revistas de Defensa. Costes de vida y tiempos de viaje: estimaciones propias, edítalos.</p>
+<p><b>Datos actualizados</b> a 19 de noviembre de 2026. Cuando cambien las bases o salgan los cortes reales de 2027, edita los valores en «Mi lista de destinos».</p>
+<p id="fpriv"></p>
+<p><a href="#" onclick="showTab(6);window.scrollTo(0,0);return false">Aviso legal</a> · <a href="#" onclick="showTab(6);window.scrollTo(0,0);return false">Privacidad</a> · <a href="#" onclick="showTab(6);window.scrollTo(0,0);return false">Cookies</a> · <a href="#" onclick="showTab(6);window.scrollTo(0,0);return false">Condiciones de uso</a> &nbsp; <button class="sec" id="wipe" style="padding:4px 12px;font-size:13px">Borrar mis datos guardados</button></p>
+<p>© <span data-l="anio"></span> <span data-l="titular"></span>. Todos los derechos reservados.</p></footer>
+<script>
+/* ===== CONFIGURACIÓN: edita solo estas líneas antes de subir la web ===== */
+const CONFIG={
+ titular:"Daniel Aranguez",
+ email:"danoaranguez@gmail.com",
+ goatcounter:""   /* tu código de GoatCounter, por ejemplo "simuladortropa"; déjalo vacío si no quieres contador */
+};
+
+const D=[
+{n:"TEAR – Tercio de Armada",c:60030,a:5.225,b:5.392,p:4.850,pl:204,as:1397},
+{n:"Regimiento Isabel la Católica",c:50177,a:4.958,b:4.852,p:null,pl:40,as:526},
+{n:"Regimiento Príncipe 3",c:50178,a:5.225,b:5.542,p:4.958,pl:40,as:622},
+{n:"Galicia 64 (Cazadores de Montaña)",c:50181,a:5.400,b:5.533,p:4.517,pl:50,as:690},
+{n:"América 66 (Cazadores de Montaña)",c:50182,a:4.983,b:5.025,p:2.850,pl:50,as:616},
+{n:"Saboya 6 (Badajoz)",c:50207,a:4.958,b:4.958,p:null,nb:1,pl:70,as:0},
+{n:"Regimiento Garellano 45",c:50200,a:4.208,b:4.825,p:2.983,pl:40,as:287},
+{n:"Regimiento Sicilia 67",c:50180,a:4.292,b:4.250,p:3.275,pl:40,as:358},
+{n:"Regimiento Arapiles 62",c:50179,a:4.317,b:4.358,p:3.050,pl:50,as:400},
+{n:"Regimiento Palma 47",c:50201,a:4.650,b:4.892,p:3.250,pl:60,as:627}];
+const $=id=>document.getElementById(id);
+const f=(x,d=3)=>x.toFixed(d).replace(".",",");
+function gauss(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+function exam(modo){
+  let a=modo==="media"?Math.round(mediaA()+gauss()*Math.max(4,sdA())):Math.round(30+Math.random()*50);
+  a=Math.max(25,Math.min(90,a));
+  const rest=105-a;const fa=Math.round(rest*(0.35+Math.random()*0.6));
+  return {a,f:fa,b:rest-fa};
+}
+function nota(a){return Math.max(0,Math.min(10,1.425+a/15))}
+function cortes(){
+  const shock=gauss()*0.12;
+  return D.map(d=>{
+    let w=[[d.a,.5],[d.b,.3]];if(d.p!==null)w.push([d.p,.2]);
+    const t=w.reduce((s,x)=>s+x[1],0);
+    const base=w.reduce((s,x)=>s+x[0]*x[1],0)/t;
+    return Math.max(2.5,base+shock+gauss()*0.15);
+  });
+}
+function sim(){
+  const e=exam($("modo").value),op=nota(e.a),conc=(parseFloat($("bar").value)||0)/40*10;
+  const pf=(7*op+3*conc)/10,c=cortes();
+  const idx=c.findIndex(x=>pf>=x);
+  return {e,op,conc,pf,c,idx};
+}
+let hist=[];
+function render(s){
+  $("pf").textContent=f(s.pf);
+  if(s.idx>=0){$("dest").textContent=D[s.idx].n+" ("+D[s.idx].c+")";$("dif").textContent="Preferencia "+(s.idx+1)+" · margen "+(s.pf-s.c[s.idx]>=0?"+":"")+f(s.pf-s.c[s.idx])}
+  else{$("dest").textContent="Sin plaza en esta simulación";$("dif").textContent="No superas ningún corte"}
+  $("exam").innerHTML=[s.e.a,s.e.f,s.e.b,105,f(s.op),f(s.conc),"<b>"+f(s.pf)+"</b>"].map(x=>"<td>"+x+"</td>").join("");
+  $("formula").textContent="PF = (7 × "+f(s.op)+" + 3 × "+f(s.conc,2)+") / 10 = "+f(s.pf);
+  $("tbody").innerHTML=D.map((d,i)=>{const df=s.pf-s.c[i],y=df>=0;
+    return `<tr class="${i===s.idx?"win":""}"><td>${i+1}</td><td>${d.n}${i===s.idx?" ★":""}</td><td>${d.c}</td><td>${f(s.c[i])}</td><td>${(y?"+":"")+f(df)}</td><td><span class="tag ${y?"ok":"no"}">${y?"Sí":"No"}</span></td></tr>`}).join("");
+  const lo=3.5,hi=6,pos=x=>Math.max(0,Math.min(100,(x-lo)/(hi-lo)*100));
+  let h=D.map((d,i)=>`<div class="mk ${s.pf>=s.c[i]?"ok":"no"}" style="left:${pos(s.c[i])}%;height:${50+((i*37)%70)}px" title="${d.n}: ${f(s.c[i])}"><span>${i+1}</span></div>`).join("");
+  h+=`<div class="needle" style="left:${pos(s.pf)}%"><b>${f(s.pf)}</b></div>`;
+  $("scale").innerHTML=h;
+  $("ticks").innerHTML=[3.5,4,4.5,5,5.5,6].map(x=>"<span>"+f(x,1)+"</span>").join("");
+  hist.unshift(s.idx>=0?`${f(s.pf)} → ${D[s.idx].n.split(" (")[0]}`:`${f(s.pf)} → sin plaza`);hist=hist.slice(0,10);
+  $("hist").innerHTML=hist.map((t,i)=>`<span class="chip">#${hist.length-i<=0?"":""}${t}</span>`).join("");
+}
+function mc(){
+  const n=2000,cnt=Array(11).fill(0);
+  for(let i=0;i<n;i++){const s=sim();cnt[s.idx>=0?s.idx:10]++}
+  $("mcb").innerHTML=D.map((d,i)=>`<tr><td>${i+1}</td><td>${d.n}</td><td>${d.c}</td><td><span class="bar" style="width:${cnt[i]/n*120}px"></span>${f(cnt[i]/n*100,1)} %</td><td>${f(cnt.slice(0,i+1).reduce((s,x)=>s+x,0)/n*100,1)} %</td></tr>`).join("")
+   +`<tr><td>–</td><td>Sin plaza</td><td>–</td><td><span class="bar" style="width:${cnt[10]/n*120}px;background:var(--no)"></span>${f(cnt[10]/n*100,1)} %</td><td>–</td></tr>`;
+  $("mcn").textContent="Con el modo y el baremo actuales. Es un escenario, no una predicción: depende de los cortes hipotéticos y de la conversión aproximada de aciertos a nota.";
+  $("mcp").hidden=false;$("mcp").scrollIntoView({behavior:"smooth"});
+}
+($("hd")||{}).innerHTML=D.map((d,i)=>`<tr><td>${i+1}</td><td>${d.n}</td><td>${f(d.a)}</td><td>${d.nb?"–":f(d.b)}</td><td>${d.p===null?"–":f(d.p)}</td><td>${d.pl}${d.as?" / "+d.as.toLocaleString("es-ES"):""}</td><td>${d.as?f(d.as/d.pl,1):"–"}</td></tr>`).join("");
+$("otra").onclick=()=>render(sim());
+$("mc").onclick=mc;
+function cdf(z){const t=1/(1+0.2316419*Math.abs(z)),d=0.3989423*Math.exp(-z*z/2),p=d*t*(0.3193815+t*(-0.3565638+t*(1.781478+t*(-1.821256+t*1.330274))));return z>0?1-p:p}
+function need(){
+  const conc=(parseFloat($("bar").value)||0)/40*10,sd=Math.sqrt(0.12*0.12+0.15*0.15);
+  const hits=pf=>((10*pf-3*conc)/7-1.425)*15;
+  const mpf=(7*nota(mediaA())+3*conc)/10;
+  const rows=D.map((d,i)=>{let w=[[d.a,.5],[d.b,.3]];if(d.p!==null)w.push([d.p,.2]);const t=w.reduce((s,x)=>s+x[1],0),base=w.reduce((s,x)=>s+x[0]*x[1],0)/t;
+    return {i,base,h50:hits(base),h80:hits(base+0.84*sd),p:cdf((mpf-base)/sd)}});
+  $("needb").innerHTML=rows.map(r=>`<tr><td>${r.i+1}</td><td>${D[r.i].n}</td><td>${f(r.base)}</td><td>${Math.ceil(r.h50)}</td><td>${Math.ceil(r.h80)}</td><td>${f(r.p*100,0)} %</td></tr>`).join("");
+  const hit=rows.find(r=>r.p>=0.5);
+  $("needsum").textContent="Con tu media ("+f(mediaA(),1)+" aciertos en tests completos) tu nota final sería de unos "+f(mpf)+". "+(hit?"El primer destino de tu lista donde estarías por encima del 50 % es el "+(hit.i+1)+" ("+D[hit.i].n+").":"No llegas al 50 % en ningún destino con tu media.");
+}
+function whatif(){
+  const a=+$("wi").value,conc=(parseFloat($("bar").value)||0)/40*10,sd=Math.sqrt(0.12*0.12+0.15*0.15);
+  const pf=(7*nota(a)+3*conc)/10;$("wiv").textContent=a;
+  const bases=D.map(d=>{let w=[[d.a,.5],[d.b,.3]];if(d.p!==null)w.push([d.p,.2]);const t=w.reduce((s,x)=>s+x[1],0);return w.reduce((s,x)=>s+x[0]*x[1],0)/t});
+  const i=bases.findIndex(b=>pf>=b);
+  $("wis").innerHTML="Nota final estimada: <b>"+f(pf)+"</b>. "+(i>=0?"Primer destino que superas: <b>"+(i+1)+". "+D[i].n+"</b> (probabilidad de superar su corte: "+f(cdf((pf-bases[i])/sd)*100,0)+" %).":"No superas el corte esperado de ningún destino.")+" TEAR: "+f(cdf((pf-bases[0])/sd)*100,0)+" %.";
+}
+$("wi").oninput=whatif;
+const O=JSON.parse(JSON.stringify(D));
+const SN=["TEAR","Isabel la Católica","Príncipe 3","Galicia 64","América 66","Saboya 6","Garellano 45","Sicilia 67","Arapiles 62","Palma 47"];
+const AN=["Verbal","Espacial","Percepción","Numérico","Mecánico","Memoria","Abstracto"];
+const SES=(()=>{const A=[44,47,50,49,54,56,55,59],o=[];let sd=7;const rn=()=>{sd=(sd*9301+49297)%233280;return sd/233280};
+ A.forEach((a,k)=>{const ar=Array(7).fill(Math.floor(a/7));let left=a-ar.reduce((t,x)=>t+x,0);for(let j=0;j<left;j++)ar[j]++;
+  for(let j=0;j<6;j++){const d=Math.round(rn()*2)-1;if(ar[j]+d>=3&&ar[j+1]-d>=3&&ar[j]+d<=14&&ar[j+1]-d<=14){ar[j]+=d;ar[j+1]-=d}}
+  o.push({n:k+1,d:"ejemplo",demo:1,c:105,a,f:Math.round((105-a)*.8),ar,nf:Math.round((1.425+a/15)*1000)/1000})});return o})();
+let EX=[];try{EX=JSON.parse(localStorage.getItem("ses_extra")||"[]")}catch(e){}
+EX.forEach(x=>SES.push(x));
+const fl=()=>{const r=SES.filter(s=>!s.p&&!s.demo);return r.length?r:SES.filter(s=>!s.p)};
+const mediaA=()=>fl().reduce((t,s)=>t+s.a,0)/fl().length;
+const sdA=()=>{const m=mediaA();return Math.sqrt(fl().reduce((t,s)=>t+(s.a-m)**2,0)/fl().length)};
+const baseOf=d=>{let w=[[d.a,.5],[d.b,.3]];if(d.p!==null)w.push([d.p,.2]);const t=w.reduce((s,x)=>s+x[1],0);return w.reduce((s,x)=>s+x[0]*x[1],0)/t};
+function areaAvg(){const r=fl().filter(s=>s.ar);return AN.map((n,k)=>[n,r.reduce((t,s)=>t+s.ar[k],0)/r.length])}
+let PR=Array(11).fill(0),VS=0;
+const V=[
+{c:"San Fernando (Cádiz)",ll:[36.46,-6.2],hab:330,piso:700,vida:380,loc:40,km:650,viaje:90,nat:4,oci:4,cli:5,nota:"Infantería de Marina. Cerca de Cádiz y playas."},
+{c:"Pontevedra (Figueirido)",ll:[42.43,-8.64],hab:320,piso:650,vida:360,loc:60,km:600,viaje:85,nat:5,oci:4,cli:3,nota:"Rías y monte cerca. Lluvia frecuente."},
+{c:"Siero (Asturias)",ll:[43.39,-5.66],hab:280,piso:600,vida:350,loc:60,km:450,viaje:75,nat:5,oci:3,cli:2,nota:"Oviedo y Gijón a mano. Clima húmedo."},
+{c:"Jaca (Huesca)",ll:[42.57,-0.55],hab:270,piso:550,vida:350,loc:30,km:470,viaje:80,nat:5,oci:2,cli:2,nota:"Pirineo y esquí. Poca oferta de vivienda e inviernos duros."},
+{c:"Navarra (Pamplona)",ll:[42.8,-1.6],hab:380,piso:850,vida:380,loc:60,km:400,viaje:60,nat:4,oci:4,cli:3,nota:"Ciudad de tamaño cómodo; Pirineo cerca."},
+{c:"Badajoz",ll:[38.88,-6.97],hab:280,piso:600,vida:360,loc:40,km:410,viaje:80,nat:3,oci:3,cli:4,nota:"Infantería con muchas plazas. Verano muy caluroso, vivienda barata."},
+{c:"Munguía (Bizkaia)",ll:[43.36,-2.85],hab:450,piso:1000,vida:400,loc:70,km:400,viaje:55,nat:4,oci:4,cli:2,nota:"Bilbao cerca, vivienda cara."},
+{c:"San Sebastián",ll:[43.31,-1.98],hab:520,piso:1200,vida:430,loc:40,km:470,viaje:60,nat:4,oci:5,cli:2,nota:"Una de las ciudades más caras para vivir."},
+{c:"Zona de Girona",ll:[41.98,2.82],hab:420,piso:900,vida:390,loc:60,km:700,viaje:90,nat:4,oci:3,cli:4,nota:"Comprueba en la convocatoria si esta unidad está disponible."},
+{c:"Palma de Mallorca",ll:[39.57,2.65],hab:520,piso:1100,vida:420,loc:40,km:550,viaje:140,nat:5,oci:4,cli:5,nota:"Isla: vivienda cara y viaje en avión o barco."}];
+const SPN=[[-9.3,42.9],[-8.9,43.25],[-8.4,43.4],[-7.7,43.75],[-7,43.55],[-5.7,43.55],[-4.5,43.4],[-3.8,43.45],[-2.9,43.4],[-1.8,43.35],[-1.3,43.05],[-.3,42.8],[.7,42.8],[1.45,42.45],[2.2,42.4],[3.3,42.3],[3.15,41.9],[2.2,41.4],[1.2,41.1],[.9,40.7],[0,40],[-.3,39.4],[.2,38.7],[-.5,38.3],[-.9,37.6],[-2.4,36.8],[-4.4,36.7],[-5.35,36.1],[-5.6,36],[-6.3,36.5],[-6.9,37.2],[-7.4,37.2],[-7.4,38],[-6.95,38.3],[-7.2,39],[-6.95,39.2],[-7.5,39.65],[-6.9,40],[-6.85,41],[-6.2,41.6],[-6.7,41.95],[-7.2,41.85],[-8.2,42.1],[-8.85,41.9],[-8.9,42.2]];
+const px=o=>(o+9.8)*.766*45+20,py=a=>(44-a)*45+10;
+function vcalc(){const sal=+$("vsal").value||0,h=$("vviv").value,car=$("vcar").checked,nv=+$("vnv").value||0;
+ return V.map(v=>{const viv=h==="hab"?v.hab:h==="piso"?v.piso:0,tr=car?250:v.loc,vi=nv*v.viaje,tot=viv+v.vida+tr+vi;return {viv,vida:v.vida,tr,vi,s:sal-tot,ini:viv*2+(h==="piso"?300:0)}})}
+const VR=[{km:690,h:6.75},{km:450,h:4.5},{km:285,h:3},{km:450,h:4.5},{km:340,h:3.4},{km:410,h:4.25},{km:300,h:3.2},{km:345,h:3.4},{km:800,h:7.75},null];
+const VQ=["San Fernando, Cádiz","Vilaboa, Pontevedra","Siero, Asturias","Jaca, Huesca","Aizoain, Navarra","Badajoz","Munguía, Bizkaia","San Sebastián","Girona","Palma de Mallorca"];
+
+const CITIES=[["Madrid",40.42,-3.7],["Barcelona",41.39,2.17],["Valencia",39.47,-.38],["Sevilla",37.39,-5.98],["Zaragoza",41.65,-.89],["Málaga",36.72,-4.42],["Valladolid",41.65,-4.72],["Bilbao",43.26,-2.93],["A Coruña",43.37,-8.4],["Murcia",37.99,-1.13],["Granada",37.18,-3.6],["Alicante",38.35,-.48],["Vigo",42.24,-8.72],["Gijón",43.53,-5.66],["Badajoz",38.88,-6.97],["Salamanca",40.97,-5.66],["Pamplona",42.82,-1.64],["Santander",43.46,-3.8],["Toledo",39.86,-4.02],["Córdoba",37.89,-4.78]];
+let ORG=(()=>{let n="Madrid";try{n=JSON.parse(localStorage.getItem("origen"))||n}catch(e){}const c=CITIES.find(x=>x[0]===n)||CITIES[0];return {n:c[0],lat:c[1],lon:c[2]}})();
+const hav=(a,b,c,d)=>{const t=x=>x*Math.PI/180,dl=t(c-a),dn=t(d-b),q=Math.sin(dl/2)**2+Math.cos(t(a))*Math.cos(t(c))*Math.sin(dn/2)**2;return 12742*Math.asin(Math.sqrt(q))};
+let NOCAR=VR.map(x=>!x);
+function geo(){V.forEach((v,i)=>{const k=Math.max(5,Math.round(hav(ORG.lat,ORG.lon,v.ll[0],v.ll[1])*1.25/5)*5);v.km=k;if(!NOCAR[i]){v.viaje=Math.max(35,Math.round(k*.13/5)*5);VR[i]={km:k,h:Math.round(k/80*100)/100}}else VR[i]=null})}
+geo();
+const hm=m=>{m=Math.round(m);const d=Math.floor(m/1440);m=((m%1440)+1440)%1440;return String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0")+(d>0?" (+1 d)":d<0?" (−1 d)":"")};
+const tm=s=>{const a=s.split(":").map(Number);return a[0]*60+a[1]};
+const dur=h=>Math.floor(h)+" h "+String(Math.round((h%1)*60)).padStart(2,"0")+" min";
+function fin(){
+ const fv=tm($("fv").value||"15:30"),fd=tm($("fd").value||"23:00"),pa=+$("fp").value||0,cs=+$("fc").value||0,gs=+$("fg").value||0;
+ const near=VR.map((r,i)=>r?[i,r.h]:null).filter(Boolean).sort((a,b)=>a[1]-b[1]).slice(0,3);
+ $("fsum").innerHTML="Los tres más cercanos en coche: "+near.map(x=>`<b>${x[0]+1}. ${SN[x[0]]}</b> (${f(x[1],1)} h)`).join(", ")+". Con tus probabilidades actuales: "+f(VR.reduce((t,r,i)=>t+(r?0:PR[i]),0)*100,0)+" % de que te toque un destino sin ruta en coche (isla, Ceuta o Melilla). Si te toca uno en coche, conducirías de media <b>"+dur(VR.reduce((t,r,i)=>t+(r?PR[i]:0),0)>0?VR.reduce((t,r,i)=>t+(r?PR[i]*r.h:0),0)/VR.reduce((t,r,i)=>t+(r?PR[i]:0),0):0)+"</b> por trayecto, y hay un "+f(VR.reduce((t,r,i)=>t+(r&&r.h>6?PR[i]:0),0)*100,0)+" % de acabar en uno de más de 6 h en coche.";
+ $("ftab").innerHTML=VR.map((r,i)=>{
+  if(!r)return `<tr><td>${i+1}</td><td>${SN[i]}</td><td>${pr(i)}</td><td colspan="7">${"Sin ruta en coche: isla o cruce de mar."}</td><td><span class="tag no">No en coche</span></td></tr>`;
+  const trip=r.h*60+Math.floor(r.h/2)*pa,t1=fv+trip,t2=2880+fd-trip,hv=(t2-t1)/60,gas=r.km*2*cs/100*gs,ver=trip<=210?["ok","Cómodo"]:trip<=300?["","Aguantable"]:["no","Pesado"];
+  return `<tr><td>${i+1}</td><td>${SN[i]}</td><td>${pr(i)}</td><td>~${r.km}</td><td>${dur(r.h)}</td><td>${hm(t1)}</td><td>${hm(fd-trip)}</td><td>${f(hv,0)} h</td><td>${f(r.h*2,1)} h</td><td>${Math.round(gas)} €</td><td><span class="tag ${ver[0]}" style="${ver[0]?"":"background:#2e3318;color:var(--acc)"}">${ver[1]}</span> <a href="https://www.google.com/maps/dir/${encodeURIComponent(VQ[i])}/${encodeURIComponent(ORG.n)}" target="_blank" rel="noopener" style="color:var(--acc)">ruta</a></td></tr>`}).join("")}
+const pr=i=>`<span class="bar" style="width:${Math.min(70,PR[i]*100)}px"></span>${f(PR[i]*100,0)} %`;
+const lsG=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}},lsS=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+let LOG=lsG('ent_log',[]),FIS=lsG('fis_log',[]),ORD=[0,1,2,3,4,5,6,7,8,9];
+const NL=String.fromCharCode(10),TB=['t1','t3','t4','t2','t5'],TPN=['tabSim','tabAn','tabEnt','tabVida','tabRes'],AC=['#d4b25a','#8fd16a','#7fa7d9','#d86a5a','#a7b3e8','#e8d37a','#b8d36a'];
+const TPT=['Infantería de Marina (Armada)','Infantería ligera, BRILAT (verifícalo en la convocatoria)','Infantería ligera, BRILAT (verifícalo en la convocatoria)','Cazadores de Montaña (verifícalo en la convocatoria)','Cazadores de Montaña (verifícalo en la convocatoria)','Infantería (Badajoz)','Infantería (Bizkaia)','Infantería (San Sebastián)','Infantería (zona de Girona)','Infantería (Mallorca)'];
+const fm=m=>Math.floor(m)+':'+String(Math.round((m%1)*60)).padStart(2,'0'),pv=s=>{s=String(s).trim();if(!s)return 0;if(s.indexOf(':')>-1){const a=s.split(':');return +a[0]+(+a[1])/60}return parseFloat(s.replace(',','.'))||0};
+function showTab(k){TPN.forEach((p,j)=>{$(p).hidden=j!==k;$(TB[j]).className=j===k?'':'sec'});if(k===1){ctab();stest()}if(k===2){achart();fisr();ehist();hoy()}if(k===3)vida();if(k===4)rres()}
+function nivel(){const b=fl().filter(s=>s.nf!=null),src=b.length>=4?b:fl(),n=src.length,rec=$('pm').value==='rec',w=src.map((s,k)=>rec?Math.pow(.8,n-1-k):1),sw=w.reduce((a,c)=>a+c,0),mu=src.reduce((t,s,k)=>t+s.a*w[k],0)/sw;return {mu:mu,sd:Math.max(4,Math.sqrt(src.reduce((t,s,k)=>t+w[k]*(s.a-mu)**2,0)/sw)),n:n}}
+function mcSim(o){const N=o.N||3000,ord=o.ord||[0,1,2,3,4,5,6,7,8,9],B=ord.map(i=>baseOf(D[i])),first=Array(11).fill(0);
+ for(let r=0;r<N;r++){const a=Math.max(25,Math.min(90,Math.round(o.mu+gauss()*o.sd))),pf=(7*nota(a)+3*o.conc)/10,sh=gauss()*.12+(o.shift||0);let hit=10;for(let k=0;k<10;k++){if(pf>=Math.max(2.5,B[k]+sh+gauss()*.15)){hit=ord[k];break}}first[hit]++}
+ return first.map(x=>x/N)}
+function ctab(){$('ctab').innerHTML=D.map((d,i)=>{const o=O[i],c=[o.p,o.nb?null:o.b,o.a],v=c.filter(x=>x!=null),dl=v.length>1?v[v.length-1]-v[v.length-2]:0,sp=v.length>1?`<svg width='60' height='20'><polyline fill='none' style='stroke:var(--acc);stroke-width:2' points='${v.map((x,k)=>(k*(56/(v.length-1))+2)+','+Math.max(2,Math.min(18,18-(x-2.8)/2.8*16))).join(' ')}'/></svg>`:'';return `<tr><td>${i+1}</td><td>${SN[i]}</td>${c.map(x=>`<td>${x==null?'–':f(x)}</td>`).join('')}<td>${sp} <span style='color:${dl>0?'var(--no)':'var(--ok)'}'>${v.length>1?(dl>0?'▲ ':'▼ ')+f(Math.abs(dl),2):'–'}</span></td><td>${d.as?f(d.as/d.pl,1):'–'}</td></tr>`}).join('')}
+function stest(){const lv=nivel(),c0=(+$('bar').value||0)/4,S=[['Tu situación actual',{}],['+1 acierto de media',{m:1}],['+3 aciertos de media',{m:3}],['+5 aciertos de media',{m:5}],['+1 punto de baremo',{c:.25}],['+3 puntos de baremo',{c:.75}],['+5 puntos de baremo',{c:1.25}],['Cortes −0,10',{s:-.1}],['Cortes +0,10',{s:.1}],['Cortes +0,20',{s:.2}]];
+ const R=S.map(x=>{const p=mcSim({mu:lv.mu+(x[1].m||0),sd:lv.sd,conc:c0+(x[1].c||0),shift:x[1].s||0,N:2500});return [x[0],p[0]*100,p.slice(0,5).reduce((t,y)=>t+y,0)*100]}),dd=v=>` <span class='note'>(${v>=0?'+':''}${f(v,0)})</span>`;
+ $('stab').innerHTML=R.map((r,i)=>`<tr><td>${r[0]}</td><td><span class='bar' style='width:${r[1]*1.5}px'></span>${f(r[1],0)} %${i?dd(r[1]-R[0][1]):''}</td><td>${f(r[2],0)} %${i?dd(r[2]-R[0][2]):''}</td></tr>`).join('')}
+let E={on:0};const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+function gen(tp,dif){const nx=genNew(tp,dif);if(nx)return nx;
+ if(tp==='calc'){const o=rnd(0,dif>1?3:1),m=dif>2?3:1;let a,b;
+  if(o===0){a=rnd(5*dif,30*dif*m);b=rnd(5*dif,30*dif*m);return {t:a+' + '+b,a:a+b}}
+  if(o===1){a=rnd(20*dif,60*dif*m);b=rnd(5,a);return {t:a+' − '+b,a:a-b}}
+  if(o===2){a=rnd(3,dif>2?25:12);b=rnd(3,dif>2?15:12);return {t:a+' × '+b,a:a*b}}
+  b=rnd(3,12);a=b*rnd(3,dif>2?25:12);return {t:a+' ÷ '+b,a:a/b}}
+ if(tp==='ser'){const s=rnd(1,20),d=rnd(2,9),ty=rnd(0,dif>1?3:1);let v=[];
+  if(ty===0)for(let i=0;i<6;i++)v.push(s+d*i);
+  else if(ty===1){const r=rnd(2,3);for(let i=0;i<6;i++)v.push(s*Math.pow(r,i))}
+  else if(ty===2){const e=rnd(1,6);let x=s;for(let i=0;i<6;i++){v.push(x);x+=i%2?-e:d+e}}
+  else for(let i=0;i<6;i++)v.push(s+d*i+i*i);
+  return {t:v.slice(0,5).join(', ')+', ?',a:v[5]}}
+ let s='';for(let i=0;i<E.L;i++)s+=rnd(0,9);return {t:s,a:tp==='inv'?s.split('').reverse().join(''):s,dig:1}}
+function eStart(){clearInterval(E.iv);E={on:1,k:0,ok:0,ts:[],L:4+(+$('etd').value),tp:$('etp').value,dif:+$('etd').value};eNext()}
+function eNext(){clearInterval(E.iv);E.sub=0;if(E.k>=10)return eEnd();E.k++;E.q=gen(E.tp,E.dif);
+ if(E.q.dig){$('earea').innerHTML=`<div class='note'>Ronda ${E.k}/10 · memoriza (${E.L} dígitos)</div><div class='q'>${E.q.t}</div>`;setTimeout(()=>{if(E.on)eAsk()},(3+E.L*.7)*1000)}else eAsk()}
+function eAsk(){const lim=E.q.dig?20:30;let left=lim;E.t0=Date.now();
+ $('earea').innerHTML=`<div class='note'>Ronda ${E.k}/10 · <span id='etl'>${lim}</span> s</div>${E.q.dig?`<div class='q'>${E.tp==='inv'?'Escríbelos al revés':'Escríbelos'}</div>`:`<div class='q'>${E.q.t}</div>`}<div class='ctrl' style='margin-top:8px'><input id='eans' autocomplete='off' style='width:200px'><button id='esub'>Responder</button></div><div id='efb' class='note'></div>`;
+ const sub=()=>eSub($('eans').value);$('esub').onclick=sub;$('eans').onkeydown=e=>{if(e.key==='Enter')sub()};$('eans').focus();
+ E.iv=setInterval(()=>{left-=1;const el=$('etl');if(el)el.textContent=left;if(left<=0)eSub('')},1000)}
+function eSub(v){if(E.sub)return;E.sub=1;clearInterval(E.iv);const q=E.q,ok=String(v).split(' ').join('')===String(q.a),A=$('efb');E.ts.push((Date.now()-E.t0)/1000);if(ok)E.ok++;if(q.dig)E.L=ok?E.L+1:Math.max(3,E.L-1);
+ if(A)A.innerHTML=ok?`<b style='color:var(--ok)'>Correcto</b>`:`<b style='color:var(--no)'>Era ${q.a}</b>`;setTimeout(()=>{if(E.on)eNext()},ok?500:1200)}
+function eEnd(){E.on=0;const avg=E.ts.reduce((a,b)=>a+b,0)/E.ts.length;LOG.unshift({d:new Date().toLocaleDateString('es-ES'),t:$('etp').selectedOptions[0].text,df:$('etd').selectedOptions[0].text,ok:E.ok,avg:Math.round(avg*10)/10});LOG=LOG.slice(0,30);lsS('ent_log',LOG);
+ $('earea').innerHTML=`<div class='q'>${E.ok}/10</div><div>Tiempo medio por ronda: ${f(avg,1)} s.</div>`;ehist()}
+function ehist(){$('ehist').innerHTML=LOG.length?`<div class='wrap'><table class='mini'><thead><tr><th>Fecha</th><th>Ejercicio</th><th>Nivel</th><th>Aciertos</th><th>Seg/ronda</th></tr></thead><tbody>${LOG.slice(0,8).map(l=>`<tr><td>${l.d}</td><td>${l.t}</td><td>${l.df}</td><td>${l.ok}/10</td><td>${f(l.avg,1)}</td></tr>`).join('')}</tbody></table></div>`:`<p class='note'>Aún no hay sesiones.</p>`}
+function achart(){const S=fl().filter(s=>s.ar);if(!$('achk').children.length){$('achk').innerHTML=AN.map((n,k)=>`<label style='flex-direction:row;align-items:center;gap:6px;color:${AC[k]}'><input type='checkbox' id='ak${k}' checked style='width:auto'>${n}</label>`).join('');AN.forEach((n,k)=>{$('ak'+k).onchange=achart})}
+ const W=620,H=220,X=i=>40+i*((W-60)/Math.max(1,S.length-1)),Y=v=>H-30-v/15*(H-50);let g='';
+ for(let v=0;v<=15;v+=5)g+=`<line x1='40' x2='${W-20}' y1='${Y(v)}' y2='${Y(v)}' style='stroke:var(--line)'/><text x='32' y='${Y(v)+4}' text-anchor='end' style='fill:var(--mute);font:11px Figtree'>${v}</text>`;
+ S.forEach((s,i)=>{g+=`<text x='${X(i)}' y='${H-8}' text-anchor='middle' style='fill:var(--mute);font:11px Figtree'>${s.n}</text>`});
+ AN.forEach((n,k)=>{if(!$('ak'+k).checked)return;g+=`<polyline fill='none' style='stroke:${AC[k]};stroke-width:2.5' points='${S.map((s,i)=>X(i)+','+Y(s.ar[k])).join(' ')}'/>`+S.map((s,i)=>`<circle cx='${X(i)}' cy='${Y(s.ar[k])}' r='3.5' style='fill:${AC[k]}'/>`).join('')});
+ $('achart').innerHTML=`<svg viewBox='0 0 ${W} ${H}' width='100%'>${g}</svg>`;
+ const h=S.slice(-3),b=S.slice(0,-3),av=(a,k)=>a.length?a.reduce((t,s)=>t+s.ar[k],0)/a.length:0;
+ $('atab').innerHTML=`<table class='mini'><thead><tr><th>Área</th><th>Antes</th><th>Últimos 3</th><th>Cambio</th></tr></thead><tbody>${AN.map((n,k)=>{const x=av(b,k),y=av(h,k),d=y-x;return `<tr><td>${n}</td><td>${f(x,1)}</td><td>${f(y,1)}</td><td style='color:${d>=0?'var(--ok)':'var(--no)'}'>${d>=0?'▲ ':'▼ '}${f(Math.abs(d),1)}</td></tr>`}).join('')}</tbody></table>`}
+function fisr(){const p=$('gp').value,rows=FIS.filter(x=>x.p===p),low=p.indexOf('Carrera')===0,vals=rows.map(x=>x.v),sh=v=>low?fm(v):f(v,0);let g='';
+ if(vals.length>1){const mn=Math.min(...vals),mx=Math.max(...vals),X=k=>30+k*(540/(vals.length-1)),Y=v=>110-(mx>mn?(v-mn)/(mx-mn):.5)*90;g=`<svg viewBox='0 0 600 130' width='100%'><polyline fill='none' style='stroke:var(--acc);stroke-width:3' points='${vals.map((v,k)=>X(k)+','+Y(v)).join(' ')}'/>${vals.map((v,k)=>`<circle cx='${X(k)}' cy='${Y(v)}' r='4' style='fill:var(--acc)'/>`).join('')}</svg>`}
+ const best=vals.length?(low?Math.min(...vals):Math.max(...vals)):null,obj=pv($('go').value);
+ $('gch').innerHTML=g+`<p>${vals.length?`Mejor marca: <b>${sh(best)}</b>`+(obj?` · objetivo ${sh(obj)}: `+((low?best<=obj:best>=obj)?`<b style='color:var(--ok)'>conseguido</b>`:`te falta <b>${sh(Math.abs(best-obj))}</b>`):''):'Sin marcas todavía.'}</p><div class='wrap'><table class='mini'><tbody>${rows.slice(-6).reverse().map(x=>`<tr><td>${x.d}</td><td>${sh(x.v)}</td></tr>`).join('')}</tbody></table></div>`}
+function rres(){const lv=nivel(),c=(+$('bar').value||0)/4,pf=(7*nota(lv.mu)+3*c)/10,p=mcSim({mu:lv.mu,sd:lv.sd,conc:c,N:4000}),C=vcalc(),top=p.slice(0,10),mi=top.indexOf(Math.max(...top));
+ const L=D.map((d,i)=>(i+1)+'. '+SN[i]+' — corte estimado '+f(baseOf(d))+' — te toca '+f(p[i]*100,0)+' %');
+ $('rtxt').value=['SIMULADOR TROPA Y MARINERÍA 2027 ('+new Date().toLocaleDateString('es-ES')+')','Nivel: '+f(lv.mu,1)+' aciertos de media (±'+f(lv.sd,1)+') con '+lv.n+' tests. Baremo '+$('bar').value+'. Nota final estimada: '+f(pf)+'.','Destino más probable: '+(mi+1)+'. '+SN[mi]+' ('+f(p[mi]*100,0)+' %).',''].concat(L,['','Sin plaza: '+f(p[10]*100,0)+' %.','Aviso: cortes estimados con datos de 2025 y 2026, no oficiales. No garantiza plaza.']).join(NL);
+ $('rsum').innerHTML=`<div class='cards'><div class='card'>Nivel<b>${f(lv.mu,1)}</b>aciertos de media</div><div class='card'>Nota final<b>${f(pf)}</b>baremo ${$('bar').value}</div><div class='card'>Más probable<b style='font-size:20px'>${mi+1}. ${SN[mi]}</b>${f(p[mi]*100,0)} %</div><div class='card'>Te sobra al mes<b>${Math.round(C[mi].s)} €</b>en ese destino</div></div><div class='wrap'><table class='mini'><thead><tr><th>#</th><th>Destino</th><th>Corte est.</th><th>Te toca</th></tr></thead><tbody>${D.map((d,i)=>`<tr><td>${i+1}</td><td>${SN[i]}</td><td>${f(baseOf(d))}</td><td><span class='bar' style='width:${Math.min(70,p[i]*100)}px'></span>${f(p[i]*100,0)} %</td></tr>`).join('')}</tbody></table></div>`}
+const CAT={};D.forEach((d,i)=>{CAT[SN[i]]={n:SN[i],d:JSON.parse(JSON.stringify(d)),v:V[i],vr:VR[i],vq:VQ[i],tp:TPT[i]}});
+function addX(sn,n,c,tp,code,a,pl,lat,lon,hab,piso,vida,km,kv,nat,oci,cli,via){CAT[sn]={n:sn,d:{n:n,c:code,a:a,b:a,p:null,nb:1,pl:pl,as:0},v:{c:c,ll:[lat,lon],hab:hab,piso:piso,vida:vida,loc:50,km:km,viaje:via||Math.round(kv*.12+10),nat:nat,oci:oci,cli:cli,nota:'Costes y tiempos estimados: verifica la zona.'},vr:kv?{km:kv,h:+(kv/100*1.02).toFixed(2)}:null,vq:c,tp:tp}}
+addX('Regulares 52 Melilla','Regulares 52 (Melilla)','Melilla','Regulares, infantería (Melilla)',50174,4.583,40,35.29,-2.94,300,600,420,900,0,3,2,4,220);
+addX('Pavía 4','Pavía 4 (Zaragoza)','Zaragoza','Infantería en regimiento acorazado',50192,4.867,19,41.65,-.88,380,800,390,320,330,3,4,3);
+addX('Regulares 54 Ceuta','Regulares 54 (Ceuta)','Ceuta','Regulares, infantería (Ceuta)',50175,5.008,39,35.89,-5.32,330,650,420,700,0,3,2,4,200);
+addX('Soria 9','Soria 9 (Fuerteventura)','Fuerteventura (Canarias)','Infantería (Fuerteventura)',50210,5.092,10,35.3,-7,450,850,440,1700,0,4,2,5,260);
+addX('Tenerife 49','Tenerife 49','Tenerife (Canarias)','Infantería (Tenerife)','–',5.225,30,35.3,-8,450,900,430,1700,0,4,3,5,240);
+addX('Canarias 50','Canarias 50','Las Palmas (Canarias)','Infantería (Gran Canaria)','–',5.308,29,35.3,-9,450,900,430,1700,0,4,3,5,240);
+addX('La Reina 2','La Reina 2 (Córdoba)','Córdoba','Infantería',50196,5.36,60,37.89,-4.77,300,650,360,400,560,3,3,5);
+addX('Castilla 16','Castilla 16 (Badajoz)','Badajoz','Infantería en regimiento acorazado','–',5.558,28,38.88,-6.97,280,600,360,400,410,3,3,4);
+addX('Barcelona 63','Barcelona 63','Barcelona','Infantería','–',4.717,49,41.39,2.17,550,1200,450,620,700,3,5,4);
+addX('Legión Gran Capitán 1','Legión: Gran Capitán 1 (Melilla)','Melilla','Legión','–',4.625,50,35.25,-2.9,300,600,420,900,0,3,2,4,220);
+addX('Legión Duque de Alba 2','Legión: Duque de Alba 2 (Ceuta)','Ceuta','Legión','–',4.692,40,35.85,-5.3,330,650,420,700,0,3,2,4,200);
+addX('Legión Juan de Austria 3','Legión: Juan de Austria 3 (Viator)','Viator (Almería)','Legión','–',4.875,80,36.89,-2.45,300,600,370,550,710,4,3,5);
+addX('Legión Farnesio 4','Legión: Alejandro Farnesio 4 (Ronda)','Ronda (Málaga)','Legión','–',5.183,30,36.74,-5.17,300,600,360,600,740,4,2,4);
+addX('Inmemorial del Rey 1','Inmemorial del Rey 1 (Pozuelo)','Pozuelo (Madrid)','Infantería','–',5.333,10,40.43,-3.81,600,1200,470,15,210,3,5,3);
+addX('Nápoles 4','Nápoles 4 (Paracuellos)','Paracuellos (Madrid)','Paracaidistas','–',5.625,59,40.5,-3.52,500,1000,460,25,215,3,5,3);
+addX('Asturias 31','Asturias 31 (Madrid)','Madrid','Infantería','–',5.692,20,40.42,-3.7,600,1200,470,5,195,3,5,3);
+addX('Zaragoza 5','Zaragoza 5 (Murcia)','Murcia','Paracaidistas','–',5.783,39,37.99,-1.13,330,650,370,400,640,3,3,5);
+addX('IMT Tercio Norte','Tercio Norte, Infantería de Marina (Ferrol)','Ferrol','Infantería de Marina','–',5.133,25,43.48,-8.23,250,500,340,600,520,4,3,2);
+addX('IMT Tercio Sur','Tercio Sur, Infantería de Marina (San Fernando)','San Fernando (Cádiz)','Infantería de Marina','–',5.792,24,36.46,-6.2,330,700,380,650,690,4,4,5);
+addX('IMT Tercio Levante','Tercio Levante, Infantería de Marina (Cartagena)','Cartagena','Infantería de Marina','–',6.225,6,37.6,-.99,280,600,360,440,640,4,3,5);
+addX('Artillería 11 Burgos','RAC 11 (Castrillo del Val, Burgos)','Burgos','Artillería de campaña',50013,4.625,28,42.35,-3.6,300,650,360,240,125,3,3,2);
+addX('Artillería VII Pontevedra','GACA VII (Pontevedra)','Pontevedra','Artillería de campaña (BRILAT, verifica)',50001,4.758,29,42.43,-8.64,320,650,360,600,450,5,4,3);
+const est=d=>d.nb?d.a+.156:.6*d.b+.4*d.a+.1,tol=p=>p<=30?.45:p<=45?.35:p<=65?.3:.25,ORIG=D.map((d,i)=>SN[i]);
+let SLOTS=lsG('lista',null);if(!SLOTS||SLOTS.length!==10||SLOTS.some(x=>!CAT[x]))SLOTS=ORIG.slice();
+function hdr(){($('hd')||{}).innerHTML=D.map((d,i)=>{const o=O[i];return `<tr><td>${i+1}</td><td>${d.n}</td><td>${f(o.a)}</td><td>${o.nb?'–':f(o.b)}</td><td>${o.p===null?'–':f(o.p)}</td><td>${o.pl}${o.as?' / '+o.as.toLocaleString('es-ES'):''}</td><td>${o.as?f(o.as/o.pl,1):'–'}</td></tr>`}).join('')}
+function fillSel(){const ov=$('obj').value||'0',cv=$('vcmp').value;$('obj').innerHTML=SN.map((n,i)=>`<option value='${i}'>${i+1}. ${n}</option>`).join('');$('obj').value=ov;$('vcmp').innerHTML="<option value=''>Sin comparar</option>"+SN.map((n,i)=>`<option value='${i}'>${i+1}. ${n}</option>`).join('');$('vcmp').value=cv}
+function setList(ids){const cs=ids.map(id=>CAT[id]),cl=x=>JSON.parse(JSON.stringify(x));
+ D.splice(0,D.length,...cs.map(c=>cl(c.d)));O.splice(0,O.length,...cs.map(c=>cl(c.d)));SN.splice(0,SN.length,...cs.map(c=>c.n));V.splice(0,V.length,...cs.map(c=>c.v));VR.splice(0,VR.length,...cs.map(c=>c.vr));VQ.splice(0,VQ.length,...cs.map(c=>c.vq));TPT.splice(0,TPT.length,...cs.map(c=>c.tp));
+ E27.splice(0,E27.length,...cs.map(c=>est(c.d)));R27L.splice(0,10,...cs.map(c=>est(c.d)-tol(c.d.pl)));R27H.splice(0,10,...cs.map(c=>est(c.d)+tol(c.d.pl)));
+ SLOTS=ids.slice();lsS('lista',SLOTS);ORD=[0,1,2,3,4,5,6,7,8,9];applyMode();hdr();fillSel();VS=Math.min(VS,9);NOCAR=VR.map(x=>!x);geo();refresh()}
+function lpick(k,id){const j=SLOTS.indexOf(id);if(j>-1&&j!==k)SLOTS[j]=SLOTS[k];SLOTS[k]=id;setList(SLOTS)}
+function lmv(k,d){const j=k+d;if(j<0||j>9)return;const t=SLOTS[k];SLOTS[k]=SLOTS[j];SLOTS[j]=t;setList(SLOTS)}
+function lrender(){const ids=Object.keys(CAT);$('lslots').innerHTML=SLOTS.map((id,k)=>`<div class='ob'><b>${k+1}.</b><select onchange='lpick(${k},this.value)' style='flex:1;width:auto'>${ids.map(x=>`<option value='${x}'${x===id?' selected':''}>${x} — ${CAT[x].v.c}</option>`).join('')}</select><span class='note' style='min-width:230px'>corte ${f(CAT[id].d.a)} · ${CAT[id].d.pl} plazas · te toca ${f(PR[k]*100,0)} %</span><button class='sec' onclick='lmv(${k},-1)' aria-label='Subir'>▲</button><button class='sec' onclick='lmv(${k},1)' aria-label='Bajar'>▼</button></div>`).join('')}
+const MIS={
+'TEAR':{b:'BRIMAR-Tercio de Armada (Infantería de Marina)',p:'Alta',t:'Despliegues expedicionarios embarcados. En 2026 un batallón de desembarco reforzado (unos 700 infantes de marina, 75 vehículos) cruzó el Atlántico con el Juan Carlos I para el ejercicio FLEETEX-250 en EE. UU. También subgrupo táctico en Rumanía, relevos en la misión de la UE en Mali, seguridad a bordo en Atalanta y ejercicios con marines de EE. UU. e Italia.'},
+'Isabel la Católica':{b:'Brigada Galicia VII (BRILAT)',p:'Alta',t:'La BRILAT es el núcleo del contingente español en Eslovaquia (OTAN, unos 800 soldados) y releva a otras brigadas en Letonia (6 meses en Adazi). Históricamente también Líbano y Mali. Ejercicios como Strong Cohesion.'},
+'Príncipe 3':{b:'Brigada Galicia VII (BRILAT)',p:'Alta',t:'Misma brigada que Isabel la Católica. Su batallón Toledo II/3 (infantería protegida) cedió blindados BMR para el despliegue en el Líbano.'},
+'Galicia 64':{b:'Brigada Aragón I',p:'Media',t:'Cazadores de Montaña: ha llegado a desplegarse en el Líbano y hace ejercicios de montaña. Menos rotaciones fijas que la BRILAT (valoración según su perfil; verifica).'},
+'América 66':{b:'Brigada Aragón I (antes Guadarrama XII)',p:'Media',t:'Cazadores de Montaña. Hasta 2020 fue de la Guadarrama XII, que tiene unos 540 militares en Letonia y despliegue en el Líbano. Ahora está en Aragón I.'},
+'Saboya 6':{b:'Brigada Extremadura XI',p:'Media',t:'Brigada mecanizada que participa por turnos en misiones de OTAN y ONU. Sin datos verificados de despliegues recientes de esta unidad.'},
+'Garellano 45':{b:'Brigada Guzmán el Bueno X',p:'Media',t:'Brigada acorazada/mecanizada con rotaciones en misiones OTAN. Sin datos verificados de despliegues recientes de esta unidad.'},
+'Sicilia 67':{b:'Brigada Extremadura XI',p:'Media',t:'Infantería ligera de la brigada mecanizada Extremadura XI. Participa por turnos; sin datos verificados recientes.'},
+'Arapiles 62':{b:'Brigada Aragón I',p:'Media',t:'Infantería de la brigada Aragón I, con ejercicios de montaña y turnos en misiones. Sin datos verificados recientes.'},
+'Palma 47':{b:'Comandancia General de Baleares',p:'Baja',t:'Unidad de guarnición en Mallorca; las misiones se cubren con voluntarios y agrupaciones. Sin datos verificados.'}};
+function misOf(id){if(MIS[id])return MIS[id];const tp=CAT[id].tp||'';if(tp.indexOf('Legión')>-1)return {b:'Brigada de la Legión',p:'Alta',t:'La Legión se despliega con frecuencia. Perfil estimado; verifica.'};if(tp.indexOf('Paraca')>-1)return {b:'BRIPAC',p:'Alta',t:'Paracaidistas, fuerza de reacción. Perfil estimado; verifica.'};if(tp.indexOf('Marina')>-1)return {b:'Infantería de Marina (Armada)',p:'Alta',t:'Despliegues embarcados y ejercicios anfibios. Perfil estimado; verifica.'};if(tp.indexOf('Artiller')>-1)return {b:'Artillería de campaña',p:'Media',t:'Aporta baterías a misiones por turnos. Perfil estimado; verifica.'};return {b:'Infantería',p:'Media',t:'Participa por turnos en misiones. Perfil estimado; verifica.'}}
+function misiones(){const col={Alta:'ok',Media:'',Baja:'no'},tot={Alta:0,Media:0,Baja:0};
+ $('mtab').innerHTML=SLOTS.map((id,k)=>{const m=misOf(id);tot[m.p]+=PR[k];return `<tr><td>${k+1}</td><td>${SN[k]}</td><td>${m.b}</td><td><span class='tag ${col[m.p]}' style='${col[m.p]?'':'background:#2e3318;color:var(--acc)'}'>${m.p}*</span></td><td style='text-align:left;white-space:normal;min-width:260px'>${m.t}</td><td>${f(PR[k]*100,0)} %</td></tr>`}).join('');
+ $('msum').innerHTML=`Con tus probabilidades actuales: <b>${f(tot.Alta*100,0)} %</b> de acabar en una unidad con posibilidad <b>alta</b> de misiones, <b>${f(tot.Media*100,0)} %</b> media y <b>${f(tot.Baja*100,0)} %</b> baja. <span class='note'>*Alta, media y baja son valoración mía según cuántos despliegues he encontrado de esa unidad; no es un dato oficial.</span>`}
+function comoVoy(){const lv=nivel(),conc=(+$('bar').value||0)/4,pf=(7*nota(lv.mu)+3*conc)/10,top=PR.slice(0,10),mi=top.indexOf(Math.max(...top)),c5=PR.slice(0,5).reduce((a,b)=>a+b,0),d=fl().filter(s=>s.nf!=null).map(s=>s.a),k=d.length;let sl=0;
+ if(k>=4){const mx=(k-1)/2,my=d.reduce((a,b)=>a+b,0)/k;let a=0,b=0;d.forEach((y,x)=>{a+=(x-mx)*(y-my);b+=(x-mx)**2});sl=a/b}
+ const need1=((10*E27[0]-3*conc)/7-1.425)*15,mej=Math.max(...fl().map(s=>s.a)),alta=SLOTS.reduce((t,id,i)=>t+(misOf(id).p==='Alta'?PR[i]:0),0);
+ $('cv').innerHTML=`<div class='cards'><div class='card'>Tu nivel<b>${f(lv.mu,1)}</b>aciertos de media (mejor test: ${mej})</div><div class='card'>Nota final estimada<b>${f(pf)}</b>baremo ${$('bar').value}</div><div class='card'>Tendencia<b>${sl>=0?'+':''}${f(sl,1)}</b>aciertos por test</div><div class='card'>Destino más probable<b style='font-size:20px'>${mi+1}. ${SN[mi]}</b>${f(PR[mi]*100,0)} %</div><div class='card'>Entras en tus 5 primeros<b>${f(c5*100,0)} %</b>de probabilidad</div><div class='card'>Unidad con misiones frecuentes<b>${f(alta*100,0)} %</b>de probabilidad</div></div><p>Para tu 1.º (${SN[0]}) necesitas unos <b>${Math.ceil(need1)} aciertos</b> con el corte que estimo para el 1.er ciclo de 2027; tu media es ${f(lv.mu,1)}, así que te faltan <b>${f(Math.max(0,need1-lv.mu),1)}</b>.</p>`}
+function layout(){try{const tab=$('tabSim'),secs=[...tab.children].filter(x=>x.tagName==='SECTION'),by=t=>secs.find(s=>{const h=s.querySelector('h2');return h&&h.textContent.indexOf(t)===0}),
+  order=['Cómo voy','Mi lista de destinos','¿Qué nota necesito','Tu capacidad real','Misiones','Tu evolución real'],ctl=secs.find(s=>s.getAttribute('aria-label')==='Controles'),keep=order.map(by).filter(Boolean),adv=document.createElement('details');
+  adv.id='adv';adv.innerHTML='<summary>Herramientas avanzadas y datos (simulaciones sueltas, aciertos necesarios, baremo, histórico...)</summary>';
+  secs.forEach(s=>{if(s!==ctl&&keep.indexOf(s)<0)adv.appendChild(s)});keep.forEach(s=>tab.appendChild(s));tab.appendChild(adv)}catch(e){}}
+const BRL=[['Relevo en el mando del battle group de la OTAN: la BRILAT sustituye a la Brigada Paracaidista Almogávares VI','Lest, Eslovaquia','relevo publicado en enero de 2025','Revista Española de Defensa, ene-2025'],['España asume el mando del Battlegroup; contingente de casi 800 soldados, la mayor parte de la BRILAT','Lest, Eslovaquia','2024','Revista Española de Defensa, jul-2024'],['Ejercicio Strong Cohesion 23-II: 460 militares y 150 vehículos, la mayor parte de la BRILAT','Lest, Eslovaquia','6-16 nov 2023','Revista Española de Defensa, dic-2023'],['Ejercicio Strong Lineage 25: la BRILAT lidera la validación para convertir el battlegroup en brigada multinacional (más de 1.000 efectivos internacionales)','Eslovaquia','2025','Estado Mayor de la Defensa'],['Misiones anteriores en Pakistán, Líbano y Malí','varios','histórico','El Ideal Gallego, 6-jun-2026'],['Operación Centinela (nacional): 30 patrullas de la BRILAT vigilando municipios con riesgo de incendio','Galicia','agosto 2026','El Español, 10-ago-2026']];
+const TML=['Despliegue de cazadores de montaña en el Líbano (mencionado en la revista Tropas de Montaña n.º 6)','Líbano','año no indicado en el extracto','Ejército de Tierra, Tropas de Montaña'];
+function lreal(k,v){const id=SLOTS[k],x=parseFloat(String(v).replace(',','.'));if(isNaN(x))delete REAL27[id];else REAL27[id]=x;lsS('real27',REAL27);setList(SLOTS)}
+let SHIFT=0,PRU=0;
+const E27=[5.425,4.994,5.515,5.580,5.108,5.114,4.678,4.367,4.442,4.895];
+function applyMode(){D.forEach((d,i)=>{d.a=(PRU===2?E27[i]:O[i].a)+SHIFT;d.b=PRU?d.a:O[i].b+SHIFT;d.p=(PRU||O[i].p===null)?null:O[i].p+SHIFT})}
+let VB=[0,0,520,420],drag=null,moved=0;
+const setVB=()=>{const s=$("vmap").firstChild;if(s)s.setAttribute("viewBox",VB.join(" "))};
+function zoom(k,cx,cy){const r=$("vmap").getBoundingClientRect(),fx=cx==null?.5:(cx-r.left)/r.width,fy=cy==null?.5:(cy-r.top)/r.height,nw=Math.max(110,Math.min(520,VB[2]*k)),nh=nw*420/520;VB=[VB[0]+(VB[2]-nw)*fx,VB[1]+(VB[3]-nh)*fy,nw,nh];setVB()}
+function fly(t){if(matchMedia("(prefers-reduced-motion:reduce)").matches){VB=t;setVB();return}const s=VB.slice(),st=performance.now(),step=n=>{const k=Math.min(1,(n-st)/500),e=1-Math.pow(1-k,3);VB=s.map((v,j)=>v+(t[j]-v)*e);setVB();if(k<1)requestAnimationFrame(step)};requestAnimationFrame(step)}
+function vsel(i){VS=i;vida();const v=V[i];fly([px(v.ll[1])-110,py(v.ll[0])-90,220,178])}
+function mapx(){const sv=$("vmap").firstChild;if(!sv)return;setVB();
+ const mx=px(ORG.lon),my=py(ORG.lat),all=$("vrt").checked;let r="";
+ V.forEach((v,i)=>{if(all||i===VS){const x=px(v.ll[1]),y=py(v.ll[0]);r+=`<line x1="${mx}" y1="${my}" x2="${x}" y2="${y}" style="stroke:var(--acc);stroke-width:${i===VS?2.5:1};stroke-dasharray:6 5;opacity:${i===VS?.9:.3};pointer-events:none"/>`;if(i===VS)r+=`<text x="${(mx+x)/2}" y="${(my+y)/2-6}" text-anchor="middle" style="fill:var(--acc);font:700 11px Figtree;pointer-events:none">${v.km} km · ${v.viaje} €</text>`}});
+ sv.querySelector("g").insertAdjacentHTML("beforebegin",r);
+ sv.querySelectorAll("g[role=button]").forEach((g,i)=>g.dataset.i=i);cmpr();extra();fin()}
+function cmpr(){const o=$("vcmpo"),j=$("vcmp").value;if(j===""||+j===VS){o.innerHTML="";return}
+ const a=VS,b=+j,C=vcalc(),ca=baseOf(D[a]),cb=baseOf(D[b]),rows=[["Te asignarían",f(PR[a]*100,0)+" %",f(PR[b]*100,0)+" %",PR[a]-PR[b]],["Corte esperado",f(ca),f(cb),cb-ca],["Te sobra al mes",Math.round(C[a].s)+" €",Math.round(C[b].s)+" €",C[a].s-C[b].s],["Gasto inicial",C[a].ini+" €",C[b].ini+" €",C[b].ini-C[a].ini],["Distancia a "+ORG.n,V[a].km+" km",V[b].km+" km",V[b].km-V[a].km],["Naturaleza",V[a].nat+"/5",V[b].nat+"/5",V[a].nat-V[b].nat],["Ocio",V[a].oci+"/5",V[b].oci+"/5",V[a].oci-V[b].oci],["Clima",V[a].cli+"/5",V[b].cli+"/5",V[a].cli-V[b].cli]];
+ o.innerHTML=`<table class="mini" style="margin-top:12px"><thead><tr><th>Comparativa</th><th>${a+1}. ${SN[a]}</th><th>${b+1}. ${SN[b]}</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${r[0]}</td><td style="${r[3]>0?"color:var(--ok);font-weight:700":""}">${r[1]}</td><td style="${r[3]<0?"color:var(--ok);font-weight:700":""}">${r[2]}</td></tr>`).join("")}</tbody></table>`}
+function extra(){const C=vcalc()[VS],v=V[VS];$("xn").textContent=(VS+1)+". "+SN[VS];
+ const ent=C.ini+v.viaje/2+200,ah=+$("xs").value||0,mes=Math.max(C.s,1);
+ $("x1").innerHTML=`Para <b>${SN[VS]}</b> necesitas ≈ <b>${Math.round(ent)} €</b> (fianza y primer mes ${C.ini} €, viaje ${Math.round(v.viaje/2)} €, equipo y básicos 200 €). `+(ah>=ent?"Con tu ahorro ya llegas.":`Te faltan ${Math.round(ent-ah)} €: unos ${Math.ceil((ent-ah)/mes)} meses de lo que te sobra.`);
+ const y=+$("xy").value,mm=+$("xm").value,ex=+$("xe").value||0,up=$("xu").checked,sal=+$("vsal").value||0;$("xyv").textContent=y;$("xmv").textContent=mm;
+ let tot=0,bars="";const sn=C.s+(up?sal*.045:0);
+ for(let a=1;a<=y;a++){tot+=(sn+Math.floor((a-1)/3)*20)*12+mm*ex;bars+=`<div style="margin:3px 0">Año ${a}: <span class="bar" style="width:${Math.max(0,tot)/60}px;max-width:60%"></span>${Math.round(tot)} €</div>`}
+ $("x3").innerHTML=`Ahorro acumulado en ${y} años en <b>${SN[VS]}</b>: <b style="color:${tot<0?"var(--no)":"var(--ok)"}">${Math.round(tot)} €</b> (${mm} meses de misión al año).${bars}`;
+ const t=+$("xt").value;$("x4").innerHTML=`${t} min por trayecto = <b>${f(t*10/60,1)} h/semana</b> y <b>${Math.round(t*10*48/60)} h/año</b> solo en ir y volver, sin guardias.`;
+ const h=v.km/75+(VR[VS]?0:3),nv=+$("vnv").value||0;
+ $("x5").innerHTML=`Puerta a puerta, unas <b>${f(h,1)} h</b> hasta ${ORG.n} (estimado). Con ${nv} viaje(s) al mes: <b>${f(h*2*nv*12,0)} h/año</b> y <b>${nv*12*v.viaje} €/año</b> en billetes.`}
+function vida(){
+ const C=vcalc(),m=$("vmet").value,vs=V.map((v,i)=>m==="p"?PR[i]:m==="s"?C[i].s:m==="d"?-v.km:-v.hab),mn=Math.min(...vs),mx=Math.max(...vs),t=i=>mx>mn?(vs[i]-mn)/(mx-mn):.5;
+ const lab=i=>m==="p"?f(PR[i]*100,0)+" %":m==="s"?Math.round(C[i].s)+" €":m==="d"?V[i].km+" km":V[i].hab+" €";
+ const mad=[px(ORG.lon),py(ORG.lat)];
+ let s=`<svg viewBox="0 0 520 420" width="100%" role="img" aria-label="Mapa de tus diez destinos"><path d="M${SPN.map(p=>px(p[0])+","+py(p[1])).join("L")}Z" style="fill:#171d14;stroke:var(--line);stroke-width:1.5"/><ellipse cx="${px(2.9)}" cy="${py(39.65)}" rx="21" ry="14" style="fill:#171d14;stroke:var(--line);stroke-width:1.5"/><rect x="${mad[0]-5}" y="${mad[1]-5}" width="10" height="10" style="fill:var(--mute)"/><text x="${mad[0]}" y="${mad[1]+20}" text-anchor="middle" style="fill:var(--mute);font:12px Figtree">${ORG.n}</text>`;
+ s+=V.map((v,i)=>{const x=px(v.ll[1]),y=py(v.ll[0]);return `<g onclick="vsel(${i})" onkeydown="if(event.key==='Enter')vsel(${i})" tabindex="0" role="button" aria-label="${SN[i]}" style="cursor:pointer">${i===VS?`<circle cx="${x}" cy="${y}" r="22" fill="none" stroke="${EVC[i]}" stroke-width="2"><animate attributeName="r" values="18;36;18" dur="1.8s" repeatCount="indefinite"/><animate attributeName="opacity" values=".9;0;.9" dur="1.8s" repeatCount="indefinite"/></circle>`:""}<circle cx="${x}" cy="${y}" r="${11+9*t(i)+(i===VS?3:0)}" style="fill:${EVC[i]};stroke:${i===VS?"var(--ink)":"var(--bg)"};stroke-width:3;filter:drop-shadow(0 0 6px ${EVC[i]})"/><text x="${x}" y="${y+5}" text-anchor="middle" style="fill:#000;font:800 14px Figtree">${i+1}</text><text x="${x}" y="${y+32}" text-anchor="middle" style="fill:var(--ink);font:600 11px Figtree">${lab(i)}</text></g>`}).join("")+"</svg>";
+ $("vmap").innerHTML=s;mapx();
+ const v=V[VS],c=C[VS],st=n=>"★".repeat(n)+"☆".repeat(5-n),r=(a,b)=>`<tr><td>${a}</td><td>${b}</td></tr>`;
+ $("vdet").innerHTML=`<b style="font:900 26px 'Big Shoulders Display',Impact,sans-serif">${VS+1}. ${SN[VS]}</b><div style="margin:2px 0 8px">${v.c}</div><table class="mini">${r("Corte esperado",f(baseOf(D[VS])))}${r("Te asignarían este",f(PR[VS]*100,0)+" %")}${r("Vivienda",c.viv+" €")}${r("Vida",c.vida+" €")}${r("Transporte",c.tr+" €")}${r("Viajes a casa",c.vi+" €")}${r("<b>Te sobra</b>",`<b style="color:${c.s<0?"var(--no)":"var(--ok)"}">${Math.round(c.s)} €</b>`)}${r("Gasto inicial",c.ini+" €")}${r("Tipo",TPT[VS])}${r("Plazas 2026",D[VS].pl)}${r("Aspirantes por plaza",D[VS].as?f(D[VS].as/D[VS].pl,1):"–")}${r("Cortes 2025 · 1.º · 2.º 2026",[O[VS].p,O[VS].nb?null:O[VS].b,O[VS].a].map(x=>x==null?"–":f(x)).join(" · "))}${r("Distancia a "+ORG.n,v.km+" km")}${r("Naturaleza / ocio / clima",st(v.nat)+" "+st(v.oci)+" "+st(v.cli))}</table><p style="margin:8px 0 0">${v.nota}</p>`;
+ $("vtab").innerHTML=V.map((v,i)=>`<tr onclick="vsel(${i})" style="cursor:pointer"><td>${i+1}</td><td>${SN[i]}</td><td>${C[i].viv} €</td><td>${C[i].vida} €</td><td>${C[i].tr} €</td><td>${C[i].vi} €</td><td style="color:${C[i].s<0?"var(--no)":"var(--ok)"}"><b>${Math.round(C[i].s)} €</b></td><td>${C[i].ini} €</td></tr>`).join("");
+ const w=["wp","ws","wd","wn","wo","wc"].map(id=>+$(id).value),tw=w.reduce((a,b)=>a+b,0)||1,sm=C.map(x=>x.s),smn=Math.min(...sm),smx=Math.max(...sm),pm=Math.max(...PR.slice(0,10),.001),kx=Math.max(...V.map(x=>x.km));
+ const sc=V.map((x,i)=>[PR[i]/pm,smx>smn?(C[i].s-smn)/(smx-smn):.5,1-x.km/kx,x.nat/5,x.oci/5,x.cli/5].reduce((a,b,k)=>a+b*w[k],0)/tw*100),ord=sc.map((_,i)=>i).sort((a,b)=>sc[b]-sc[a]);
+ window.RK=ord.map(i=>[i,sc[i]]);$("vrank").innerHTML=ord.map((i,k)=>`<tr onclick="vsel(${i})" style="cursor:pointer"><td>${k+1}</td><td>${i+1}. ${SN[i]}</td><td><span class="bar" style="width:${sc[i]*1.5}px;background:linear-gradient(90deg,${EVC[i]}66,${EVC[i]})"></span>${f(sc[i],0)}</td></tr>`).join("");
+}
+function refresh(){render(sim());need();whatif();prog();evo();plan();bar_();prob()}
+function prob(){
+ const base=fl().filter(s=>s.nf!=null),src=base.length>=4?base:fl(),n=src.length,rec=$("pm").value==="rec";
+ const w=src.map((s,k)=>rec?Math.pow(.8,n-1-k):1),sw=w.reduce((a,b)=>a+b,0);
+ const mu=src.reduce((t,s,k)=>t+s.a*w[k],0)/sw,sd=Math.max(4,Math.sqrt(src.reduce((t,s,k)=>t+w[k]*(s.a-mu)**2,0)/sw));
+ const conc=(parseFloat($("bar").value)||0)/40*10,N=4000,first=Array(11).fill(0),sup=Array(10).fill(0);
+ for(let r=0;r<N;r++){const a=Math.max(25,Math.min(90,Math.round(mu+gauss()*sd))),pf=(7*nota(a)+3*conc)/10,c=cortes();let hit=-1;c.forEach((x,i)=>{if(pf>=x){sup[i]++;if(hit<0)hit=i}});first[hit<0?10:hit]++}
+ const B=D.map(baseOf);let acc=0;
+ $("pbb").innerHTML=D.map((d,i)=>{acc+=first[i];return `<tr><td>${i+1}</td><td>${SN[i]}</td><td>${f(B[i])}</td><td>${f(sup[i]/N*100,0)} %</td><td><span class="bar" style="width:${first[i]/N*120}px"></span>${f(first[i]/N*100,0)} %</td><td>${f(acc/N*100,0)} %</td></tr>`}).join("")+`<tr><td>–</td><td>Sin plaza</td><td>–</td><td>–</td><td><span class="bar" style="width:${first[10]/N*120}px;background:var(--no)"></span>${f(first[10]/N*100,0)} %</td><td>–</td></tr>`;
+ PR=first.map(x=>x/N);vida();n27();lrender();comoVoy();misiones();let mi=0;first.forEach((x,i)=>{if(x>first[mi])mi=i});
+ const pr=fl().filter(s=>s.c).map(s=>s.a/s.c*100),pa=pr.reduce((a,b)=>a+b,0)/pr.length,ff=fl().filter(s=>s.f!=null);
+ $("pbs").innerHTML=`Con tus ${n} tests ${rec?"(más peso a los recientes)":"(todos por igual)"} tu nivel es de <b>${f(mu,1)} aciertos</b>, con una variación de ±${f(sd,1)}. Resultado más probable: <b>${mi<10?(mi+1)+"º "+SN[mi]:"sin plaza"}</b> (${f(first[mi]/N*100,0)} %). Aciertas el ${f(pa,0)} % de lo que contestas y fallas ${f(ff.reduce((t,s)=>t+s.f,0)/ff.length,0)} de media por test. En tus tests los fallos no restan: lo que mueve la nota son los aciertos.`;
+}
+function plan(){
+ const conc=(parseFloat($("bar").value)||0)/40*10,sd=Math.sqrt(.12*.12+.15*.15),B=D.map(baseOf),i=+$("obj").value,hits=pf=>((10*pf-3*conc)/7-1.425)*15;
+ const n50=Math.ceil(hits(B[i])),n80=Math.ceil(hits(B[i]+.84*sd)),m=mediaA();
+ let t=`Para <b>${i+1}º ${SN[i]}</b> (corte esperado ${f(B[i])}) necesitas unos <b>${n50} aciertos</b> para superarlo la mitad de las veces y <b>${n80}</b> para hacerlo 8 de cada 10. Tu media es ${f(m,1)}: `+(m>=n80?"ya estás por encima del nivel del 80 %.":m>=n50?"estás entre el 50 % y el 80 %; te faltan "+f(n80-m,1)+" aciertos para el 80 %.":"te faltan "+f(n50-m,1)+" aciertos para el 50 % y "+f(n80-m,1)+" para el 80 %.");
+ const fx=$("fx").value;
+ if(fx){const dias=Math.ceil((new Date(fx)-new Date())/864e5);if(dias>0){const gap=Math.max(0,n80-m);t+=` Quedan ${dias} días (${f(dias/7,1)} semanas)`+(gap>0?`: unos ${f(gap/(dias/7),2)} aciertos más de media por semana para llegar al 80 %.`:".")}else t+=" La fecha indicada ya ha pasado."}
+ const d=fl().filter(s=>s.nf!=null).map(s=>s.a),k=d.length;
+ if(k>=4){const mx=(k-1)/2,my=d.reduce((a,b)=>a+b,0)/k;let sxy=0,sxx=0;d.forEach((y,x)=>{sxy+=(x-mx)*(y-my);sxx+=(x-mx)**2});const sl=sxy/sxx;t+=` Tendencia de tus tests con captura: ${sl>=0?"+":""}${f(sl,1)} aciertos por test.`}
+ $("objs").innerHTML=t;
+}
+function bar_(){
+ const op=nota(mediaA()),B=D.map(baseOf);
+ $("bt").innerHTML=[15,19,23,27,31,35].map(b=>{const pf=(7*op+3*b/4)/10,i=B.findIndex(x=>pf>=x);return `<tr><td>${b}</td><td>${f(pf)}</td><td>${i>=0?(i+1)+"º "+SN[i]:"Sin plaza"}</td><td>${(b>=19?"+":"")+f((b-19)*1.607,1)}</td></tr>`}).join("");
+ $("btn").textContent="Cada punto de baremo (sobre 40) suma 0,075 a la nota final, lo mismo que unos 1,6 aciertos. Mira en las bases qué méritos puedes sumar antes de la convocatoria: puede compensar tanto como estudiar más.";
+}
+$("nclr").onclick=()=>{SES.splice(SES.length-EX.length,EX.length);EX=[];try{localStorage.removeItem("ses_extra")}catch(e){}refresh()};
+
+let EV={m:"pf",nn:99,cuts:[0,1,3,4],tr:true,goal:0,sel:-1,i:0},EVD=null;
+const EVC=["#e08a2e","#d4b25a","#d86a5a","#a7b3e8","#6fb7c9","#8fd16a","#b8d36a","#7fa7d9","#e8d37a","#b8bda8"];
+function evSet(k,v){EV[k]=v;evx()}
+function evCut(i){const a=EV.cuts,j=a.indexOf(i);if(j>-1)a.splice(j,1);else a.push(i);evx()}
+function evSel(k){const d=$("evd");if(d)d.open=true;EV.sel=Math.max(0,Math.min(EVD.ok.length-1,k));evx()}
+function evPlay(){if(EV.iv){clearInterval(EV.iv);EV.iv=0;EV.upto=0;evx();return}let k=3;EV.upto=k;EV.sel=k-1;EV.an=false;evx();EV.iv=setInterval(()=>{k++;if(k>EVD.ok.length){clearInterval(EV.iv);EV.iv=0;EV.upto=0;EV.sel=EVD.ok.length-1;evx();return}EV.upto=k;EV.sel=k-1;evx()},750);evx()}
+function evx(){
+ if(!EVD)return;
+ if(!EV.i){EV.i=1;$("evnn").oninput=()=>{EV.nn=+$("evnn").value;evx()};$("evgl").oninput=()=>{EV.goal=+$("evgl").value;evx()};$("evnx").oninput=()=>{EV.nx=+$("evnx").value;evx()}}
+ const ok=EV.upto?EVD.ok.slice(0,EV.upto):EVD.ok,B=EVD.B,conc=EVD.conc,N=ok.length,hits=c=>((10*c-3*conc)/7-1.425)*15,m=EV.m;
+ const nn=Math.max(3,Math.min(EV.nn,N)),off=N-nn,vis=ok.slice(off);
+ if(EV.sel<0||EV.sel>=N)EV.sel=N-1;
+ $("evnn").max=N;$("evnn").value=nn;$("evnnv").textContent=nn+" de "+N;$("evgv").textContent=EV.goal>0?EV.goal+" aciertos":"sin objetivo";$("evnxv").textContent=EV.nx>0?EV.nx+" aciertos":"sin simular";
+ const val=r=>m==="pf"?r.pf:r.s.a,cv=i=>m==="pf"?B[i]:hits(B[i]),vals=vis.map(val),n=vis.length;
+ let pj=[],sl=0;
+ if(EV.tr&&n>=3){const mx=(n-1)/2,my=vals.reduce((a,b)=>a+b,0)/n;let sxy=0,sxx=0;vals.forEach((y,x)=>{sxy+=(x-mx)*(y-my);sxx+=(x-mx)**2});sl=sxy/sxx;for(let q=1;q<=3;q++)pj.push(my+sl*(n-1+q-mx))}
+ const gv=EV.goal>0?(m==="pf"?(7*nota(EV.goal)+3*conc)/10:EV.goal):null;
+ const nxv=EV.nx>0?(m==="pf"?(7*nota(EV.nx)+3*conc)/10:EV.nx):null;const ext=vals.concat(pj,EV.cuts.map(cv));if(gv!=null)ext.push(gv);if(nxv!=null)ext.push(nxv);
+ let lo=Math.min(...ext),hi=Math.max(...ext);const pad=(hi-lo)*.14||.2;lo-=pad;hi+=pad;
+ const W=720,H=350,Lm=46,Rm=106,T=26,Bm=52,tot=n+pj.length+(EV.nx>0?1:0),X=k=>Lm+(W-Lm-Rm)*(tot>1?k/(tot-1):.5),Y=v=>T+(H-T-Bm)*(1-(v-lo)/(hi-lo)),fv=v=>m==="pf"?f(v,2):String(Math.round(v));
+ let g='<defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e08a2e" stop-opacity=".55"/><stop offset="1" stop-color="#d4b25a" stop-opacity="0"/></linearGradient><linearGradient id="gl" x1="0" x2="1"><stop offset="0" stop-color="#6fb7c9"/><stop offset=".55" stop-color="#d4b25a"/><stop offset="1" stop-color="#e08a2e"/></linearGradient><filter id="gw"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
+ if(EV.cuts.length){const top=Math.max(...EV.cuts.map(cv));g+=`<rect x="${Lm}" y="${Y(hi)}" width="${W-Lm-Rm}" height="${Math.max(0,Y(top)-Y(hi))}" fill="#8fd16a" opacity=".06"/>`}
+ const step=m==="pf"?((hi-lo)>1.5?.5:.25):((hi-lo)>30?10:5);
+ for(let v=Math.ceil(lo/step)*step;v<=hi;v+=step)g+=`<line class="g" x1="${Lm}" x2="${W-Rm}" y1="${Y(v)}" y2="${Y(v)}" stroke-dasharray="2 5"/><text x="${Lm-8}" y="${Y(v)+4}" text-anchor="end">${fv(v)}</text>`;
+ EV.cuts.slice().sort((a,b)=>cv(b)-cv(a)).forEach(i=>{const c=EVC[i],y=Y(cv(i));g+=`<line x1="${Lm}" x2="${W-Rm+8}" y1="${y}" y2="${y}" stroke="${c}" stroke-width="1.4" stroke-dasharray="6 5" opacity=".85"/><rect x="${W-Rm+10}" y="${y-10}" width="94" height="20" rx="10" fill="${c}" opacity=".16"/><text x="${W-Rm+16}" y="${y+4}" style="fill:${c};font-weight:700">${i+1}º ${SN[i].split(" ")[0]} ${fv(cv(i))}</text>`});
+ if(gv!=null)g+=`<line x1="${Lm}" x2="${W-Rm+8}" y1="${Y(gv)}" y2="${Y(gv)}" stroke="#fff" stroke-width="2"/><text x="${Lm+6}" y="${Y(gv)-6}" style="fill:#fff;font-weight:700">Mi objetivo: ${EV.goal} aciertos (${f((7*nota(EV.goal)+3*conc)/10,2)})</text>`;
+ const pts=vis.map((r,k)=>X(k)+","+Y(val(r))).join(" ");
+ if(n>2){const mm=vals.map((v,k)=>{const a=vals.slice(Math.max(0,k-2),k+1);return a.reduce((t,x)=>t+x,0)/a.length});g+=`<polyline fill="none" stroke="#fff" stroke-width="1.6" stroke-dasharray="3 5" opacity=".6" points="${mm.map((v,k)=>X(k)+","+Y(v)).join(" ")}"/>`}
+ g+=`<polygon points="${X(0)},${H-Bm} ${pts} ${X(n-1)},${H-Bm}" fill="url(#ga)"/>`;
+ g+=`<polyline fill="none" stroke="url(#gl)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" opacity=".18" points="${pts}"/><g class="${EV.an?"fi":""}" filter="url(#gw)">${vis.slice(1).map((r,k)=>{const up=val(r)>=val(vis[k]);return `<line x1="${X(k)}" y1="${Y(val(vis[k]))}" x2="${X(k+1)}" y2="${Y(val(r))}" stroke="${up?"#86e05a":"#ff5a44"}" stroke-width="5" stroke-linecap="round"/>`}).join("")}</g>`;
+ if(pj.length){g+=`<polyline fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="3 6" opacity=".75" points="${X(n-1)},${Y(vals[n-1])} ${pj.map((v,q)=>X(n+q)+","+Y(v)).join(" ")}"/>`+pj.map((v,q)=>`<circle cx="${X(n+q)}" cy="${Y(v)}" r="5" fill="none" stroke="#fff" stroke-width="1.5" opacity=".8"><title>Proyección orientativa: ${fv(v)}</title></circle>`).join("")+`<text x="${X(n+1)}" y="${Y(pj[1])-14}" text-anchor="middle" style="fill:#fff;font-size:11px">proyección (orientativa)</text>`}
+ if(nxv!=null){const xp=X(n+pj.length),yp=Y(nxv),pfn=(7*nota(EV.nx)+3*conc)/10,di=B.findIndex(b=>pfn>=b),dc=di>=0?EVC[di]:"#7f8770";g+=`<line x1="${X(n-1)}" y1="${Y(vals[n-1])}" x2="${xp}" y2="${yp}" stroke="${dc}" stroke-width="2" stroke-dasharray="4 5"/><circle cx="${xp}" cy="${yp}" r="14" fill="${dc}" opacity=".3"><animate attributeName="r" values="10;18;10" dur="1.6s" repeatCount="indefinite"/></circle><circle cx="${xp}" cy="${yp}" r="7" fill="none" stroke="${dc}" stroke-width="3"/><text x="${xp}" y="${yp-24}" text-anchor="middle" style="fill:${dc};font-weight:800;font-size:12px">¿y si ${EV.nx}? ${di>=0?(di+1)+"º "+SN[di]:"sin plaza"}</text>`}
+ vis.forEach((r,k)=>{const col=r.i>=0?EVC[r.i]:"#7f8770",lab=r.i>=0?(r.i+1)+"º "+SN[r.i]:"Sin plaza",sel=off+k===EV.sel;
+  g+=`<g style="cursor:pointer" onclick="evSel(${off+k})">${sel?`<line x1="${X(k)}" x2="${X(k)}" y1="${T}" y2="${H-Bm}" stroke="${col}" stroke-width="1" stroke-dasharray="3 4" opacity=".7"/>`:""}<circle cx="${X(k)}" cy="${Y(val(r))}" r="${sel?20:15}" fill="${col}" opacity=".32"/><circle class="pt" cx="${X(k)}" cy="${Y(val(r))}" r="${sel?8.5:6.5}" fill="${col}" stroke="${sel?"#fff":"#000"}" stroke-width="2"><title>Test ${r.s.n}: ${r.s.a} aciertos · nota final ${f(r.pf)} · ${lab}</title></circle><text x="${X(k)}" y="${Y(val(r))-16}" text-anchor="middle" style="fill:#fff;font-weight:700;font-size:12px">${fv(val(r))}</text><text x="${X(k)}" y="${H-26}" text-anchor="middle" style="fill:${sel?"#fff":"var(--ink)"};font-weight:700">${r.s.n}</text><text x="${X(k)}" y="${H-12}" text-anchor="middle" style="font-size:10px">${m==="pf"?r.s.a+" ac.":f(r.pf,2)}</text></g>`});
+ $("chart").innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Evolución de tus tests, interactiva">${g}<line id="evg" x1="0" x2="0" y1="${T}" y2="${H-Bm}" stroke="#fff" stroke-width="1" stroke-dasharray="3 4" opacity=".6" style="display:none;pointer-events:none"/></svg><div class="leg"><span><i style="background:#86e05a"></i>Sube</span><span><i style="background:#ff5a44"></i>Baja</span>${n>2?`<span><i style="background:#fff;opacity:.6"></i>Media móvil (3 tests)</span>`:""}${[...new Set(vis.map(r=>r.i))].filter(x=>x>=0).map(x=>`<span><i style="background:${EVC[x]}"></i>${x+1}º ${SN[x]}</span>`).join("")}<span class="note">Pulsa un punto para ver su detalle</span></div>`;EV.an=false;
+ {const sv=$("chart").firstChild,tp=$("evtip");if(sv&&tp){const idx=e=>{const r=sv.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*W;return Math.max(0,Math.min(n-1,Math.round((x-Lm)/((W-Lm-Rm)/Math.max(1,tot-1)))))};
+  sv.onmousemove=e=>{const k=idx(e),r=vis[k],lb=r.i>=0?(r.i+1)+"º "+SN[r.i]:"Sin plaza",gl=sv.querySelector("#evg");if(gl){gl.setAttribute("x1",X(k));gl.setAttribute("x2",X(k));gl.style.display="block"}tp.innerHTML="<b>Test "+r.s.n+"</b> · "+r.s.d+"<br>"+r.s.a+" aciertos · nota "+f(r.pf,2)+"<br>"+lb;tp.style.display="block";tp.style.left=Math.min(e.clientX+14,innerWidth-200)+"px";tp.style.top=(e.clientY+14)+"px"};
+  sv.onmouseleave=()=>{tp.style.display="none";const gl=sv.querySelector("#evg");if(gl)gl.style.display="none"};
+  sv.onclick=e=>evSel(off+idx(e))}}
+ const bt=(lab,on,act)=>`<button class="${on?"":"sec"}" onclick="${act}" style="padding:4px 12px;font-size:13px">${lab}</button>`;
+ $("evchips").innerHTML=`<div class="leg" style="align-items:center"><b style="color:var(--ink)">Ver:</b>${bt("Nota final",m==="pf","evSet('m','pf')")}${bt("Aciertos",m==="a","evSet('m','a')")}${bt("Tendencia "+(EV.tr?"✓":""),EV.tr,"evSet('tr',!EV.tr)")}${bt(EV.iv?"■ Parar":"▶ Reproducir",!!EV.iv,"evPlay()")}<b style="color:var(--ink);margin-left:8px">Cortes:</b>${B.map((b,i)=>`<button class="${EV.cuts.indexOf(i)>-1?"":"sec"}" onclick="evCut(${i})" style="padding:3px 10px;font-size:12px;${EV.cuts.indexOf(i)>-1?"background:"+EVC[i]+";color:#000;box-shadow:none":""}">${i+1}º ${SN[i].split(" ")[0]}</button>`).join("")}</div>${pj.length?`<p class="note" style="margin:0 0 6px">Tendencia de los ${n} tests mostrados: <b>${sl>=0?"+":""}${m==="pf"?f(sl,3):f(sl,1)}</b> por test. Es una recta sobre pocos datos, solo orientativa.</p>`:""}`;
+ const r=ok[EV.sel],pv=EV.sel>0?ok[EV.sel-1]:null,A=areaAvg(),lab=r.i>=0?(r.i+1)+"º "+SN[r.i]:"Sin plaza";
+ const ab=r.s.ar?AN.map((nm,k)=>`<div style="display:flex;align-items:center;gap:8px;margin:3px 0;font-size:13px"><span style="width:78px;color:var(--mute)">${nm}</span><div style="position:relative;flex:1;height:10px;background:#1d2419;border-radius:5px"><div style="height:100%;width:${r.s.ar[k]/15*100}%;border-radius:5px;background:${r.s.ar[k]>=A[k][1]?"var(--ok)":"var(--no)"}"></div><div title="Tu media" style="position:absolute;top:-3px;bottom:-3px;left:${A[k][1]/15*100}%;width:2px;background:#fff"></div></div><b>${r.s.ar[k]}</b></div>`).join(""):`<p class="note">Este test no tiene desglose por áreas.</p>`;
+ const dt=B.map((b,i)=>{const d=r.pf-b;return `<tr${i===r.i?' class="win"':""}><td>${i+1}. ${SN[i]}</td><td>${f(b)}</td><td style="color:${d>=0?"var(--ok)":"var(--no)"}">${d>=0?"+":""}${f(d)}</td></tr>`}).join("");
+ const nxn=nxv!=null?(()=>{const l3=ok.slice(-3).reduce((t,r)=>t+r.s.a,0)/Math.min(3,N),l3n=(ok.slice(-2).reduce((t,r)=>t+r.s.a,0)+EV.nx)/(Math.min(2,N)+1);return `<p class="note" style="margin:8px 0 0">Si el próximo test es de <b>${EV.nx}</b> aciertos, tu media de los últimos 3 pasaría de <b>${f(l3,1)}</b> a <b>${f(l3n,1)}</b>. Es una simulación, no un dato.</p>`})():"";
+ $("evdet").innerHTML=nxn+`<div class="panel" style="margin:12px 0 0;background:#0f130d"><div class="ctrl" style="justify-content:space-between;align-items:center"><h2 style="margin:0">Test ${r.s.n} <span class="note">${r.s.d}</span></h2><div><button class="sec" onclick="evSel(${EV.sel-1})" aria-label="Test anterior">◀</button> <button class="sec" onclick="evSel(${EV.sel+1})" aria-label="Test siguiente">▶</button></div></div><div class="cards"><div class="card">Aciertos<b>${r.s.a}</b>${pv?(r.s.a-pv.s.a>=0?"+":"")+(r.s.a-pv.s.a)+" vs test anterior":"primer test"}</div><div class="card">Nota final<b>${f(r.pf)}</b>baremo ${$("bar").value}</div><div class="card">Te habría tocado<b style="font-size:20px">${lab}</b>según el corte estimado</div></div><div class="vgrid"><div><h3 style="margin:8px 0;font-size:14px;color:var(--mute)">ÁREAS (raya blanca = tu media)</h3>${ab}</div><div class="wrap"><table class="mini"><thead><tr><th>Destino</th><th>Corte</th><th>Margen</th></tr></thead><tbody>${dt}</tbody></table></div></div></div>`;
+}
+
+const MTB={energia:["Hoy no tienes que ser perfecto, tienes que ser un poco mejor que ayer.","Cada test que haces te quita incertidumbre. Eso ya es ganar terreno.","El examen premia a quien llega con horas hechas, no con ganas de última hora.","No necesitas sentirte listo para empezar: empieza y la sensación llega después.","El destino que quieres no se consigue en un día. Se consigue en días como este."],
+frustracion:["Un mal test es un dato, no un veredicto. Mira qué área falló y entrena esa.","Bajar un día es normal: entre un test y otro siempre has variado unos puntos. Lo que cuenta es la tendencia.","Si hoy cuesta, estás justo en la parte del entrenamiento que sirve. Para cinco minutos, respira y vuelve.","Compararte con otros no suma aciertos. Compararte con tu test de la semana pasada, sí."],
+antes:["Antes del test: agua, tres respiraciones lentas y empieza por lo que mejor se te da para coger ritmo.","Si te atascas en una pregunta, márcala y sigue. Vale lo mismo que la fácil de después.","Entra con un objetivo concreto: un número de aciertos, no un a ver qué sale."],
+fisico:["Un entrenamiento hecho vale más que tres planeados.","La carrera mejora con constancia: salir cuando no apetece es lo que luego se nota."]};
+const MTN={todo:"Todo",energia:"Energía",frustracion:"Cuando cuesta",antes:"Antes de un test",datos:"Con mis datos"};
+let MT={c:"todo",q:{},cur:""};
+function mtData(){try{const S=fl().filter(s=>s.nf!=null),n=S.length;if(n<6)return [];const av=x=>x.reduce((t,s)=>t+s.a,0)/x.length,a=S.slice(0,3),b=S.slice(-3),best=Math.max(...S.map(s=>s.a)),c60=S.filter(s=>s.a>=60).length,conc=(+$("bar").value||0)/4,need=((10*E27[0]-3*conc)/7-1.425)*15,L=[];
+ if(av(b)>av(a))L.push("Tus primeros 3 tests con captura: "+f(av(a),1)+" aciertos de media. Los últimos 3: "+f(av(b),1)+". Eso son "+f(av(b)-av(a),1)+" más, y no te los ha regalado nadie.");
+ L.push("Tu mejor test es de "+best+" aciertos y has llegado a 60 o más en "+c60+" de tus "+n+" tests con captura.");
+ L.push("Para el primer puesto de tu lista, con la estimación que uso, necesitas unos "+Math.ceil(need)+" aciertos. Tu media de los últimos 3 es "+f(av(b),1)+": "+(av(b)>=need?"ya estás en esa zona.":"te faltan "+f(need-av(b),1)+". Es una distancia que se recorre test a test."));
+ return L}catch(e){return []}}
+function mtPool(){const c=MT.c;if(c==="datos")return mtData();if(c==="todo")return [].concat(MTB.energia,MTB.frustracion,MTB.antes,MTB.fisico,mtData());return MTB[c]||[]}
+function mtNext(){const p=mtPool();if(!p.length){MT.cur="Aún no hay suficientes tests con captura para frases con tus datos.";$("mtvq").textContent=MT.cur;return}
+ let q=MT.q[MT.c];if(!q||!q.length||q.some(x=>p.indexOf(x)<0)){q=p.slice();for(let i=q.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[q[i],q[j]]=[q[j],q[i]]}}
+ MT.cur=q.pop();MT.q[MT.c]=q;$("mtvq").textContent=MT.cur}
+function mtChips(){$("mtvc").innerHTML=Object.keys(MTN).map(k=>`<button class="${k===MT.c?"":"sec"}" onclick="MT.c='${k}';mtChips();mtNext()">${MTN[k]}</button>`).join("")}
+function mtInit(){$("mtvb").onclick=()=>{const p=$("mtvp");p.hidden=!p.hidden;$("mtvb").setAttribute("aria-expanded",String(!p.hidden));if(!p.hidden){mtChips();mtNext()}};
+ $("mtvo").onclick=mtNext;$("mtvx").onclick=()=>{$("mtvp").hidden=true;$("mtvb").setAttribute("aria-expanded","false")};
+ $("mtvy").onclick=()=>{try{navigator.clipboard.writeText(MT.cur);$("mtvm").textContent="Copiado."}catch(e){$("mtvm").textContent="Selecciona y copia el texto."}}}
+const pill=(v,lo,hi,t)=>{const x=Math.max(0,Math.min(1,(v-lo)/(hi-lo)));return `<span style="display:inline-block;min-width:34px;padding:3px 8px;border-radius:9px;background:hsl(${Math.round(x*125)} 88% ${28+x*8}%);color:#fff;font-weight:800;box-shadow:0 0 12px hsl(${Math.round(x*125)} 90% 45% / .45)">${t==null?v:t}</span>`};
+function evo(){
+ const conc=(parseFloat($("bar").value)||0)/40*10,B=D.map(baseOf),pfOf=a=>(7*nota(a)+3*conc)/10,idx=pf=>B.findIndex(b=>pf>=b);
+ const rows=SES.map(s=>{const op=s.nf!=null?s.nf:nota(s.a),pf=(7*op+3*conc)/10;return {s,op,pf,i:s.p?-2:idx(pf),est:s.nf==null}});
+ const ok=rows.filter(r=>!r.s.p),dated=ok.filter(r=>!r.est).slice(-3);
+ const best=ok.reduce((m,r)=>r.s.a>m.s.a?r:m),m3=dated.reduce((t,r)=>t+r.s.a,0)/(dated.length||1),im=idx(pfOf(mediaA()));
+ $("evsum").innerHTML=`<div class="cards"><div class="card">Media de aciertos<b>${f(mediaA(),1)}</b></div><div class="card">Mejor test<b>${best.s.a}</b>test ${best.s.n}</div><div class="card">Media últimos 3 con captura<b>${f(m3,1)}</b></div><div class="card">Con tu media<b style="font-size:22px">${im>=0?(im+1)+"º "+SN[im]:"Sin plaza"}</b>según el corte esperado</div></div>`;
+ const R=rows.slice().reverse();
+ const L=(lab,fn,c)=>`<tr class="${c||""}"><th>${lab}</th>${R.map(r=>"<td>"+fn(r)+"</td>").join("")}</tr>`;
+ $("ev").innerHTML="<table><thead><tr><th>Sesión</th>"+R.map(r=>`<th>${r.s.n}${r.s.p?" (parcial)":""}</th>`).join("")+"</tr></thead><tbody>"
+  +L("Fecha",r=>`<span class="note">${r.s.d}</span>`)+L("Contestadas",r=>r.s.c==null?"–":r.s.c)
+  +L("Acertadas",r=>pill(r.s.a,40,66),"gr")+L("Falladas",r=>r.s.f==null?"–":r.s.f,"or")
+  +AN.map((n,k)=>L(n,r=>r.s.ar?pill(r.s.ar[k],2,12):"–")).join("")
+  +L("Oposición",r=>pill(r.op,4.2,5.8,f(r.op)+(r.est?"*":"")))
+  +L("Nota final",r=>r.s.p?"–":pill(r.pf,4.2,5.8,f(r.pf)),"fin")
+  +L("Destino",r=>r.s.p?"–":(r.i>=0?`<span class="tag" style="background:${EVC[r.i]};color:#000;font-weight:800;box-shadow:0 0 12px ${EVC[r.i]}88">${r.i+1}º ${SN[r.i]}</span>`:`<span class="tag no">Sin plaza</span>`))
+  +"</tbody></table>";
+ EVD={ok:ok,B:B,conc:conc};EV.an=true;evx();
+}
+$("nadd").onclick=()=>{const a=parseInt($("na").value);if(isNaN(a))return;
+ const fa=parseInt($("nfl").value),nn=parseFloat(($("nn").value||"").replace(",",".")),ar=($("nar").value||"").split(",").map(Number);
+ const o={n:$("ns").value||"nuevo",d:$("nd").value||"–",c:isNaN(fa)?null:a+fa,a,f:isNaN(fa)?null:fa,ar:ar.length===7&&ar.every(x=>!isNaN(x))?ar:null,nf:isNaN(nn)?null:nn};
+ SES.push(o);EX.push(o);try{localStorage.setItem("ses_extra",JSON.stringify(EX))}catch(e){}
+ refresh()};
+function prog(){
+  const conc=(parseFloat($("bar").value)||0)/40*10,pf=a=>(7*nota(a)+3*conc)/10;
+  $("prog").innerHTML="Tu media en tests completos es de <b>"+f(mediaA(),1)+" aciertos</b> y tu mejor test llegó a <b>"+Math.max(...fl().map(s=>s.a))+"</b>. Con la media, tu nota final estimada es <b>"+f(pf(mediaA()))+"</b>.";
+  const A=areaAvg(),mn=Math.min(...A.map(x=>x[1]));
+  $("areas").innerHTML=A.map(x=>`<div style="display:flex;align-items:center;gap:10px;margin:6px 0"><span style="width:90px">${x[0]}</span><span class="bar" style="width:${x[1]/15*220}px;${x[1]===mn?"background:var(--no)":""}"></span><b>${f(x[1],1)}</b>${x[1]===mn?'<span class="tag no">Tu área más débil</span>':""}</div>`).join("");
+}
+$("sh").oninput=()=>{const s=+$("sh").value;$("sv").textContent=(s>=0?"+":"")+f(s,2);SHIFT=s;applyMode();refresh()};
+$("obj").innerHTML=SN.map((n,i)=>`<option value="${i}">${i+1}. ${n}</option>`).join("");$("obj").onchange=plan;$("fx").onchange=plan;
+$("t1").onclick=()=>{$("tabSim").hidden=false;$("tabVida").hidden=true;$("t1").className="";$("t2").className="sec"};
+$("t2").onclick=()=>{$("tabSim").hidden=true;$("tabVida").hidden=false;$("t2").className="";$("t1").className="sec";vida()};
+$("t1").className="";
+["vmet","vsal","vviv","vcar","vnv","wp","ws","wd","wn","wo","wc"].forEach(id=>{$(id).oninput=vida;$(id).onchange=vida});
+$("vtips").innerHTML=`<p class="note" style="margin-top:0">Destino que estás mirando: <b id="xn" style="color:var(--ink)"></b>. Cámbialo pulsando un destino en el mapa o en las tablas.</p>
+<details open><summary>💶 Dinero de entrada: lo que necesitas antes del primer sueldo</summary><p>Alquilar suele pedir fianza y primer mes a la vez, y hay que sumar el viaje, ropa y lo básico.</p><label>Ahorro que tienes ahora (€)<input id="xs" type="number" value="1500" step="100"></label><p id="x1"></p></details>
+<details><summary>🎖️ Formación inicial: qué preguntar</summary><p>Antes de la unidad hay una formación militar básica (Armada: EIMGAF, Cartagena). Durante ese periodo el sueldo y el alojamiento pueden ser distintos. Verifícalo en las bases y pregunta: cuánto dura, cuánto cobras, si duermes en el centro, qué debes llevar y cuándo conoces tu unidad definitiva.</p></details>
+<details><summary>📈 Tu bolsillo a varios años (misiones, trienios, subida)</summary><p>Suma el sobrante del presupuesto, la subida del 4,5 % de 2027 (según la prensa), un trienio cada 3 años (≈20 € netos al mes) y las misiones. Una fuente habla de 15.000–25.000 € extra por 6 meses desplegado; uso 1.500 €/mes como cifra prudente. Las misiones no las eliges ni son seguras.</p><div class="ctrl"><label>Años: <b id="xyv" style="color:var(--ink)"></b><input id="xy" type="range" min="1" max="8" value="4"></label><label>Meses de misión al año: <b id="xmv" style="color:var(--ink)"></b><input id="xm" type="range" min="0" max="6" value="0"></label><label>Extra por mes en misión (€)<input id="xe" type="number" value="1500" step="100"></label><label style="flex-direction:row;align-items:center;gap:8px"><input id="xu" type="checkbox" checked style="width:auto"> Contar +4,5 % de 2027</label></div><div id="x3" style="margin-top:10px"></div></details>
+<details><summary>🚗 Cuartel y tiempo: el coste que no sale en el alquiler</summary><p>Mira dónde está el cuartel antes de alquilar. Guardias, maniobras y formaciones rompen horarios, así que vivir lejos pesa más de lo que parece.</p><label>Minutos por trayecto: <input id="xt" type="range" min="5" max="60" value="25" style="width:240px"></label><p id="x4"></p></details>
+<details><summary>✈️ Volver a casa: tiempo y billetes</summary><p>Cambia los viajes al mes en el presupuesto y mira el efecto. Palma suma avión o barco.</p><p id="x5"></p></details>
+<details><summary>🧭 Plan B: después de la tropa</summary><p>La tropa es temporal. Aprovecha para sumar méritos (idiomas, carnets, cursos y titulaciones que ofrezca Defensa), guárdalos y ahorra un colchón de 3–6 meses antes de que acabe el compromiso. Mira con tiempo los requisitos de lo siguiente (otras salidas profesionales) y verifícalos en fuentes oficiales.</p></details>
+<details><summary>🏠 Alojamiento y ayudas</summary><p>Pregunta en el destino que te toque por alojamientos de la unidad, residencias y ayudas de vivienda de Defensa, y por complementos de destino (islas y Melilla). No des por hecho que existan: verifícalo.</p></details>`;
+const vm=$("vmap");
+vm.addEventListener("pointerdown",e=>{drag={x:e.clientX,y:e.clientY,vb:VB.slice()};moved=0});
+addEventListener("pointermove",e=>{if(drag){const r=vm.getBoundingClientRect();moved=Math.max(moved,Math.abs(e.clientX-drag.x)+Math.abs(e.clientY-drag.y));VB=[drag.vb[0]-(e.clientX-drag.x)/r.width*VB[2],drag.vb[1]-(e.clientY-drag.y)/r.height*VB[3],VB[2],VB[3]];setVB()}});
+addEventListener("pointerup",()=>{drag=null});
+vm.addEventListener("click",e=>{if(moved>5){e.stopPropagation();e.preventDefault();moved=0}},true);
+vm.addEventListener("wheel",e=>{e.preventDefault();zoom(e.deltaY<0?.8:1.25,e.clientX,e.clientY)},{passive:false});
+vm.addEventListener("pointermove",e=>{const g=e.target.closest&&e.target.closest("g[role=button]"),tp=$("vtip");if(g&&!drag){const i=+g.dataset.i,c=vcalc()[i];tp.innerHTML=`<b>${i+1}. ${SN[i]}</b><br>${V[i].c}<br>${f(PR[i]*100,0)} % · te sobra ${Math.round(c.s)} €`;tp.style.display="block";tp.style.left=e.clientX+14+"px";tp.style.top=e.clientY+14+"px"}else tp.style.display="none"});
+vm.addEventListener("pointerleave",()=>{$("vtip").style.display="none"});
+$("vz1").onclick=()=>zoom(.7);$("vz2").onclick=()=>zoom(1.4);$("vz0").onclick=()=>fly([0,0,520,420]);
+$("vcmp").innerHTML='<option value="">Sin comparar</option>'+SN.map((n,i)=>`<option value="${i}">${i+1}. ${n}</option>`).join("");
+["vrt","vcmp"].forEach(id=>{$(id).onchange=vida});
+["xs","xt","xy","xm","xe","xu"].forEach(id=>{$(id).oninput=extra;$(id).onchange=extra});
+$("pru").onchange=()=>{PRU=+$("pru").value;applyMode();refresh()};applyMode();
+["fv","fd","fp","fc","fg"].forEach(id=>{$(id).oninput=fin;$(id).onchange=fin});fin();
+TB.forEach((id,k)=>{$(id).onclick=()=>showTab(k)});
+const R27L=[5.18,4.69,5.17,5.23,4.81,4.76,4.23,4.07,4.14,4.55],R27H=[5.67,5.29,5.87,5.93,5.41,5.46,5.13,4.67,4.74,5.25];
+function n27(){const el=$('n27a');if(!el.dataset.i){el.value=Math.round(mediaA());el.dataset.i=1}
+ const a=+el.value,conc=(+$('bar').value||0)/4,pf=(7*nota(a)+3*conc)/10,hits=p=>((10*p-3*conc)/7-1.425)*15,lo=3.9,hi=6,X=v=>Math.max(0,Math.min(100,(v-lo)/(hi-lo)*100));
+ $('n27v').textContent=a;const first=E27.findIndex(c=>pf>=c);let h='';
+ E27.forEach((c,i)=>{const st=pf>=R27H[i]?['Seguro','var(--ok)']:pf>=c?['Probable','var(--ok)']:pf>=R27L[i]?['Posible','var(--acc)']:['No llega','var(--no)'];
+  h+=`<div class='rw'><span><b>${i+1}.</b> ${SN[i]}</span><div class='tk'><div class='bd' style='left:${X(R27L[i])}%;width:${X(R27H[i])-X(R27L[i])}%'></div><div class='ct' style='left:${X(c)}%'></div><div class='me' style='left:${X(pf)}%'></div></div><span>Nota ≈<b>${f(c,2)}</b> · ≈<b>${Math.ceil(hits(c))}</b> aciertos<br><b style='color:${st[1]}'>${st[0]}</b> <span class='note'>(rango ${Math.ceil(hits(R27L[i]))}–${Math.ceil(hits(R27H[i]))})</span></span></div>`});
+ h+=`<div class='rw'><span></span><div style='position:relative;height:18px'>${[4,4.5,5,5.5,6].map(v=>`<span class='note' style='position:absolute;left:${X(v)}%;transform:translateX(-50%)'>${f(v,1)}</span>`).join('')}</div><span></span></div>`;
+ $('n27r').innerHTML=h;
+ $('n27s').innerHTML=`Con <b>${a} aciertos</b> y baremo ${$('bar').value} tu nota final sería <b>${f(pf)}</b>: `+(first>=0?`con los cortes centrales te asignarían <b>${first+1}. ${SN[first]}</b>.`:'no llegarías a ninguno de tu lista.')}
+layout();
+$('lreset').onclick=()=>setList(ORIG.slice());if(SLOTS.join()!==ORIG.join())setList(SLOTS);else lrender();
+$('ego').onclick=eStart;$('n27a').oninput=n27;
+$('gp').innerHTML=['Carrera 2 km (min:seg)','Flexiones','Abdominales','Dominadas','Plancha (seg)','Otra prueba'].map(n=>`<option>${n}</option>`).join('');$('gp').onchange=fisr;$('go').oninput=fisr;
+$('gadd').onclick=()=>{const v=pv($('gv').value);if(!v)return;FIS.push({d:new Date().toLocaleDateString('es-ES'),p:$('gp').value,v:v});lsS('fis_log',FIS);$('gv').value='';fisr()};
+$('rcp').onclick=()=>{$('rtxt').select();try{navigator.clipboard.writeText($('rtxt').value);$('rcm').textContent='Copiado.'}catch(e){$('rcm').textContent='Selecciona el texto y cópialo.'}};
+$('bkg').onclick=()=>{$('bk').value=JSON.stringify({v:1,ses:EX,ent:LOG,fis:FIS,bar:$('bar').value})};
+$('bki').onclick=()=>{try{const o=JSON.parse($('bk').value);SES.splice(SES.length-EX.length,EX.length);EX=o.ses||[];EX.forEach(x=>SES.push(x));LOG=o.ent||[];FIS=o.fis||[];lsS('ses_extra',EX);lsS('ent_log',LOG);lsS('fis_log',FIS);refresh();$('bkm').textContent='Copia importada.'}catch(e){$('bkm').textContent='No he podido leer ese texto.'}};
+$('bkb').onclick=()=>{let n=0;$('bl').value.split(NL).map(x=>x.trim()).filter(Boolean).forEach(l=>{const p=l.split(';'),a=parseInt(p[2]);if(isNaN(a))return;const fa=parseInt(p[3]),nn=parseFloat((p[4]||'').replace(',','.')),ar=(p[5]||'').split(',').map(Number),o={n:p[0]||'nuevo',d:p[1]||'–',c:isNaN(fa)?null:a+fa,a:a,f:isNaN(fa)?null:fa,ar:ar.length===7&&ar.every(x=>!isNaN(x))?ar:null,nf:isNaN(nn)?null:nn};SES.push(o);EX.push(o);n++});lsS('ses_extra',EX);refresh();$('bkm').textContent=n+' sesiones añadidas.'};
+$("pm").onchange=prob;need();whatif();prog();evo();plan();bar_();prob();$("bar").oninput=()=>{need();whatif();prog();evo();plan();bar_();prob()};
+render(sim());
+
+/* ===== VIDA Y DESTINOS: MÁS DINÁMICO ===== */
+function vcb(i){const b=+$("vcmp").value;$("vcmp").value=($("vcmp").value!==""&&b===i)?"":String(i);vida()}
+function vplus(){try{
+ const C=vcalc(),pm=Math.max(...PR.slice(0,10),.001),kx=Math.max(...V.map(x=>x.km)),sm=C.map(x=>x.s),smn=Math.min(...sm),smx=Math.max(...sm);
+ const ax=["Probabilidad","Dinero","Cercanía","Naturaleza","Ocio","Clima"];
+ const val=i=>[PR[i]/pm,smx>smn?(C[i].s-smn)/(smx-smn):.5,1-V[i].km/kx,V[i].nat/5,V[i].oci/5,V[i].cli/5];
+ const raw=i=>[f(PR[i]*100,0)+" %",Math.round(C[i].s)+" €/mes",V[i].km+" km",V[i].nat+"/5",V[i].oci+"/5",V[i].cli+"/5"];
+ const j=$("vcmp").value,B=(j===""||+j===VS)?-1:+j,A=VS;
+ // chips de comparación
+ $("vchips").innerHTML='<b style="color:var(--ink)">Comparar '+(A+1)+'. '+SN[A]+' con:</b>'+V.map((v,i)=>i===A?"":`<button class="${i===B?"":"sec"}" onclick="vcb(${i})" style="padding:4px 12px;font-size:13px;${i===B?"":"border-color:"+EVC[i]+";"}">${i+1}. ${SN[i]}</button>`).join("");
+ // radar
+ const cx=150,cy=140,R=100,ang=k=>-Math.PI/2+k*Math.PI/3,pt=(k,r)=>[cx+Math.cos(ang(k))*R*r,cy+Math.sin(ang(k))*R*r];
+ let g="";
+ [.25,.5,.75,1].forEach(r=>{g+=`<polygon points="${[0,1,2,3,4,5].map(k=>pt(k,r).join(",")).join(" ")}" fill="none" stroke="#2c3626"/>`});
+ ax.forEach((a,k)=>{const p=pt(k,1),l=pt(k,1.22);g+=`<line x1="${cx}" y1="${cy}" x2="${p[0]}" y2="${p[1]}" stroke="#2c3626"/><text x="${l[0]}" y="${l[1]+4}" text-anchor="middle" style="fill:var(--mute);font:600 11px Figtree">${a}</text>`});
+ [A,B].filter(d=>d>=0).forEach(d=>{const v=val(d),pts=v.map((x,k)=>pt(k,.04+.96*x));g+=`<polygon points="${pts.map(p=>p.join(",")).join(" ")}" fill="${EVC[d]}" fill-opacity=".28" stroke="${EVC[d]}" stroke-width="2.5" style="filter:drop-shadow(0 0 6px ${EVC[d]})"/>`+pts.map((p,k)=>`<circle cx="${p[0]}" cy="${p[1]}" r="5" fill="${EVC[d]}" stroke="#000" stroke-width="1.5"><title>${SN[d]} · ${ax[k]}: ${raw(d)[k]}</title></circle>`).join("")});
+ $("vrad").innerHTML=`<svg viewBox="0 0 300 285" width="100%" role="img" aria-label="Radar comparando destinos">${g}</svg>`;
+ const hd=d=>`<span style="color:${EVC[d]};font-weight:800">● ${d+1}. ${SN[d]}</span>`;
+ let t=`<div style="margin-bottom:8px">${hd(A)}${B>=0?" frente a "+hd(B):""}</div><table class="mini"><thead><tr><th>Eje</th><th>${SN[A]}</th>${B>=0?`<th>${SN[B]}</th>`:""}</tr></thead><tbody>`;
+ ax.forEach((a,k)=>{const va=val(A)[k],vb=B>=0?val(B)[k]:0,wa=B>=0&&va>vb+.001,wb=B>=0&&vb>va+.001;t+=`<tr><td>${a}</td><td style="${wa?"color:var(--ok);font-weight:700":""}">${raw(A)[k]}</td>${B>=0?`<td style="${wb?"color:var(--ok);font-weight:700":""}">${raw(B)[k]}</td>`:""}</tr>`});
+ $("vradl").innerHTML=t+"</tbody></table>"+(B<0?'<p class="note">Pulsa un destino arriba para compararlo.</p>':"");
+ // barras de dinero
+ const mx=Math.max(...sm.map(Math.abs),1);
+ $("vsb").innerHTML=V.map((v,i)=>{const s=C[i].s;return `<div onclick="vsel(${i})" style="display:flex;align-items:center;gap:8px;margin:4px 0;padding:2px 4px;cursor:pointer;border-radius:8px;${i===VS?"outline:1px solid "+EVC[i]+";":""}"><span style="width:130px;font-size:13px">${i+1}. ${SN[i]}</span><div style="flex:1;height:14px;background:#171d14;border-radius:7px"><div style="height:100%;width:${Math.max(2,Math.abs(s)/mx*100)}%;border-radius:7px;background:${s<0?"var(--no)":`linear-gradient(90deg,${EVC[i]}66,${EVC[i]})`};box-shadow:0 0 10px ${EVC[i]}55"></div></div><b style="width:76px;text-align:right;font-size:13px;color:${s<0?"var(--no)":"var(--ink)"}">${Math.round(s)} €</b></div>`}).join("");
+ // podio
+ if(window.RK){const med=["🥇","🥈","🥉"];$("vpod").innerHTML=RK.slice(0,3).map((r,k)=>{const i=r[0],v=val(i),top=v.map((x,q)=>[x,q]).sort((a,b)=>b[0]-a[0]).slice(0,2).map(x=>ax[x[1]].toLowerCase()).join(" y ");return `<div class="card" onclick="vsel(${i})" style="cursor:pointer;border-color:${EVC[i]}"><div style="font-size:22px">${med[k]}</div><b style="color:${EVC[i]}">${i+1}. ${SN[i]}</b><div style="font:900 28px 'Big Shoulders Display',Impact,sans-serif">${f(r[1],0)}<span class="note"> / 100</span></div><div class="note">Destaca en ${top}</div></div>`}).join("")}
+}catch(e){}}
+function ftl(){try{
+ const fv=tm($("fv").value||"15:30"),fd=tm($("fd").value||"23:00"),pa=+$("fp").value||0,tot=2880+fd-fv;
+ let s=`<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--mute);margin-left:138px;margin-right:80px"><span>Viernes ${hm(fv)}</span><span>Sábado</span><span>Domingo ${hm(fd)}</span></div>`;
+ s+=VR.map((r,i)=>{const lb=`<span style="width:130px;font-size:13px">${i+1}. ${SN[i]}</span>`;if(!r)return `<div style="display:flex;align-items:center;gap:8px;margin:5px 0;opacity:.6">${lb}<span class="note">Sin ruta en coche (isla o cruce de mar)</span></div>`;
+  const trip=r.h*60+Math.floor(r.h/2)*pa,st=tot-2*trip,w=x=>Math.max(0,x/tot*100);
+  return `<div onclick="vsel(${i})" style="display:flex;align-items:center;gap:8px;margin:5px 0;cursor:pointer;padding:2px 4px;border-radius:8px;${i===VS?"outline:1px solid "+EVC[i]+";":""}">${lb}<div style="flex:1;display:flex;height:22px;border-radius:11px;overflow:hidden;background:#171d14"><div title="Ida: ${dur(r.h)}" style="width:${w(trip)}%;background:linear-gradient(90deg,#e08a2e,#ff5a44)"></div><div title="En casa" style="width:${w(st)}%;background:linear-gradient(90deg,#5fa83a,#86e05a)"></div><div title="Vuelta: ${dur(r.h)}" style="width:${w(trip)}%;background:linear-gradient(90deg,#ff5a44,#e08a2e)"></div></div><b style="width:72px;text-align:right;font-size:13px;color:${st<=0?"var(--no)":"var(--ok)"}">${st>0?f(st/60,0)+" h":"no llegas"}</b></div>`}).join("");
+ s+='<div class="leg" style="margin-top:6px"><span><i style="background:#e08a2e"></i>Conduciendo (ida y vuelta, con paradas)</span><span><i style="background:#86e05a"></i>Horas reales en casa</span></div>';
+ $("ftl").innerHTML=s}catch(e){}}
+{const _v=vida,_f=fin;vida=function(){_v();vplus()};fin=function(){_f();ftl()}}
+let VTR=0;function vtour(){if(VTR){clearInterval(VTR);VTR=0}else{vsel(VS);VTR=setInterval(()=>{if($("tabVida").hidden){clearInterval(VTR);VTR=0;$("vtour").textContent="▶ Tour";return}vsel((VS+1)%10)},2800)}$("vtour").textContent=VTR?"■ Parar tour":"▶ Tour"}
+$("vtour").onclick=vtour;$("vprev").onclick=()=>vsel((VS+9)%10);$("vnext").onclick=()=>vsel((VS+1)%10);
+if(document.addEventListener)document.addEventListener("keydown",e=>{if($("tabVida").hidden||/INPUT|SELECT|TEXTAREA/.test((e.target||{}).tagName||""))return;if(e.key==="ArrowRight")vsel((VS+1)%10);else if(e.key==="ArrowLeft")vsel((VS+9)%10)});
+
+/* ===== EXTRAS: ENTRENADOR 5 ÁREAS, HOY TOCA, MÉRITOS, CUENTA ATRÁS ===== */
+function pnorm(c){const mx=Math.min(...c.map(p=>p[0])),my=Math.min(...c.map(p=>p[1]));return c.map(p=>[p[0]-mx,p[1]-my]).sort((a,b)=>a[1]-b[1]||a[0]-b[0])}
+function polyN(n){let c=[[0,0]];const has=(x,y)=>c.some(p=>p[0]===x&&p[1]===y);while(c.length<n){const p=c[rnd(0,c.length-1)],d=[[1,0],[-1,0],[0,1],[0,-1]][rnd(0,3)],x=p[0]+d[0],y=p[1]+d[1];if(!has(x,y)&&Math.abs(x)<3&&Math.abs(y)<3)c.push([x,y])}return pnorm(c)}
+const prot=c=>pnorm(c.map(p=>[-p[1],p[0]])),pmir=c=>pnorm(c.map(p=>[-p[0],p[1]])),pkey=c=>c.map(p=>p.join(",")).join(";");
+function psvg(c){const s=16,w=Math.max(...c.map(p=>p[0]))+1,hh=Math.max(...c.map(p=>p[1]))+1;return `<svg width="${w*s+4}" height="${hh*s+4}">${c.map(p=>`<rect x="${p[0]*s+2}" y="${p[1]*s+2}" width="${s-2}" height="${s-2}" rx="3" fill="#d4b25a"/>`).join("")}</svg>`}
+function genEsp(dif){for(let t=0;t<300;t++){const R=polyN(dif+4),rots=[R];for(let i=0;i<3;i++)rots.push(prot(rots[i]));const rk=new Set(rots.map(pkey));
+ const M=[pmir(R)];for(let i=0;i<3;i++)M.push(prot(M[i]));const mk=[...new Map(M.map(m=>[pkey(m),m])).values()].filter(m=>!rk.has(pkey(m)));if(mk.length<3)continue;
+ const dis=mk.sort(()=>Math.random()-.5).slice(0,3),good=rots[rnd(1,3)],pos=rnd(1,4),opts=[];let di=0;for(let i=1;i<=4;i++)opts.push(i===pos?good:dis[di++]);
+ const box=(c,lab,cl)=>`<div ${cl?`onclick="eClick(${lab})" `:""}style="${cl?"cursor:pointer;":""}border:1px solid #38432f;border-radius:12px;padding:8px 12px;text-align:center;background:#0f130d"><div style="font:700 12px Figtree;color:var(--mute)">${lab}</div>${psvg(c)}</div>`;
+ return {t:`<div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">${box(R,"Modelo",0)}<span style="font-size:22px">→</span>${opts.map((c,i)=>box(c,i+1,1)).join("")}</div><div class="note" style="margin-top:8px">¿Cuál es el mismo modelo solo girado, sin darle la vuelta como un espejo? Escribe 1–4 o púlsala.</div>`,a:pos}}
+ return null}
+function genNew(tp,dif){
+ if(tp==="esp")return genEsp(dif);
+ if(tp==="per"){
+  if(rnd(0,1)){const S=["▲","●","■","◆","★"].slice(0,2+dif),len=[28,40,56][dif-1],t=Array.from({length:len},()=>S[rnd(0,S.length-1)]),x=S[rnd(0,S.length-1)];
+   return {t:`<div style="font-size:26px;letter-spacing:6px;line-height:1.5;word-break:break-all">${t.join("")}</div><div class="note" style="margin-top:6px">¿Cuántas veces aparece <b style="font-size:20px">${x}</b>?</div>`,a:t.filter(y=>y===x).length}}
+  const L=3+dif,N=6,ch="ABCDEFGHJKLMNPRSTUVXYZ2345789",mk=()=>Array.from({length:L},()=>ch[rnd(0,ch.length-1)]),odd=rnd(1,N),ps=[];
+  for(let i=1;i<=N;i++){const a=mk(),b=a.slice();if(i===odd){const p=rnd(0,L-1);let c;do{c=ch[rnd(0,ch.length-1)]}while(c===b[p]);b[p]=c}ps.push(a.join("")+"  –  "+b.join(""))}
+  return {t:`<div style="font:700 20px monospace;line-height:1.7">${ps.map((p,i)=>`<div onclick="eClick(${i+1})" style="cursor:pointer"><span style="color:var(--mute)">${i+1}.</span> ${p}</div>`).join("")}</div><div class="note">Una pareja tiene un carácter distinto. ¿Cuál? Escribe su número o púlsala.</div>`,a:odd}}
+ if(tp==="mec"){const o=rnd(0,3);
+  if(o===0){const da=rnd(1,5)+dif,db=rnd(1,5)+dif,k=rnd(1,6);return {t:`Palanca en equilibrio. A un lado hay ${db*k} kg a ${da} m del apoyo. ¿Cuántos kg hay que poner al otro lado, a ${db} m, para equilibrarla?`,a:da*k}}
+  if(o===1){const s=[10,12,15,20][rnd(0,3)],r=rnd(2,4);if(rnd(0,1)){const v=rnd(2,8);return {t:`Engranaje A (${s*r} dientes) mueve a B (${s} dientes). Si A da ${v} vueltas, ¿cuántas vueltas da B?`,a:v*r}}const v=r*rnd(1,4);return {t:`Engranaje A (${s} dientes) mueve a B (${s*r} dientes). Si A da ${v} vueltas, ¿cuántas vueltas da B?`,a:v/r}}
+  if(o===2){const n=rnd(3,6+dif);return {t:`${n} engranajes engranados en fila (A, B, C…). El primero gira en sentido horario. ¿En qué sentido gira el último? Escribe 1 si horario, 2 si antihorario.`,a:n%2?1:2}}
+  const k=rnd(2,4+dif),m=rnd(5,20);return {t:`Polea móvil ideal (sin rozamiento) con ${k} tramos de cuerda sujetando la carga. ¿Qué fuerza, en kg, hay que hacer para levantar ${k*m} kg?`,a:m}}
+ return null}
+function eClick(n){if(!E.on||E.sub)return;eSub(String(n))}
+function eGo(t){$("etp").value=t;eStart();if($("earea").scrollIntoView)$("earea").scrollIntoView({behavior:"smooth",block:"center"})}
+function hoy(){try{const el=$("ehoy");if(!el)return;const S=fl().filter(s=>s.ar);if(S.length<3){el.innerHTML='<p class="note">Añade tests con áreas para que te diga qué entrenar.</p>';return}
+ const last=S.slice(-4),T={1:"esp",2:"per",3:"calc",4:"mec",5:"dig"},avg=k=>S.reduce((t,s)=>t+s.ar[k],0)/S.length,rec=k=>last.reduce((t,s)=>t+s.ar[k],0)/last.length;
+ const rows=AN.map((n,k)=>({n,k,a:avg(k),r:rec(k),tr:T[k]})).map(x=>({...x,pr:-x.r+(x.r<x.a?1.5*(x.a-x.r):0)})),top=rows.filter(x=>x.tr).sort((a,b)=>b.pr-a.pr)[0];
+ const hoyS=new Date().toLocaleDateString("es-ES"),dn=LOG.filter(l=>l.d===hoyS).length,sem=LOG.filter(l=>{const p=String(l.d).split("/");if(p.length<3)return false;const dd=(new Date()-new Date(+p[2],+p[1]-1,+p[0]))/864e5;return dd>=0&&dd<7}).length;
+ el.innerHTML=`<div class="card" style="border-color:${AC[top.k]};margin-bottom:12px"><div class="note">Mi criterio: el área con peor media reciente, con un extra si estás bajando</div><div style="font:900 30px 'Big Shoulders Display',Impact,sans-serif;color:${AC[top.k]}">🎯 Hoy toca: ${top.n}</div><div>Últimos ${last.length} tests: <b>${f(top.r,1)}</b> de media (global ${f(top.a,1)}, ${top.r<top.a?"bajando":"subiendo o igual"}).</div><div class="ctrl" style="margin-top:8px"><button onclick="eGo('${top.tr}')">Entrenar ${top.n} ahora</button><span class="note">Sesiones de hoy: ${dn} · esta semana: ${sem}</span></div></div>`+
+ rows.map(x=>`<div ${x.tr?`onclick="eGo('${x.tr}')" style="cursor:pointer;`:`style="opacity:.6;`}display:flex;align-items:center;gap:8px;margin:4px 0;padding:2px 4px;border-radius:8px"><span style="width:90px;font-size:13px">${x.n}</span><div style="flex:1;height:14px;background:#171d14;border-radius:7px"><div style="height:100%;width:${x.r/15*100}%;border-radius:7px;background:linear-gradient(90deg,${AC[x.k]}66,${AC[x.k]});box-shadow:0 0 10px ${AC[x.k]}55"></div></div><b style="width:60px;text-align:right;font-size:13px">${f(x.r,1)}${x.r<x.a-.3?" ↓":x.r>x.a+.3?" ↑":""}</b><span class="note" style="width:110px">${x.tr?"pulsa para entrenar":"sin entrenador"}</span></div>`).join("")+'<p class="note">Verbal y Abstracto no tienen entrenador aquí: practícalos con tests completos.</p>'}catch(e){}}
+{const _e=ehist;ehist=function(){_e();hoy()}}
+// --- méritos
+let MER=lsG("meritos",[{n:"Idiomas",p:0,m:0},{n:"Titulación",p:0,m:0},{n:"Carnets y permisos",p:0,m:0},{n:"Cursos y otros",p:0,m:0}]);
+const merTot=()=>Math.min(40,MER.reduce((t,r)=>t+(+r.p||0),0));
+function merSet(i,k,v){MER[i][k]=k==="n"?v:(parseFloat(String(v).replace(",","."))||0);lsS("meritos",MER);mer()}
+function merDel(i){MER.splice(i,1);lsS("meritos",MER);mer()}
+function mer(){try{if(!$("mer"))return;const q=s=>String(s).replace(/"/g,"&quot;");
+ $("mer").innerHTML='<table class="mini"><thead><tr><th>Mérito</th><th>Puntos que tengo</th><th>Máximo posible</th><th></th></tr></thead><tbody>'+MER.map((r,i)=>`<tr><td><input value="${q(r.n)}" onchange="merSet(${i},'n',this.value)" style="width:170px"></td><td><input type="number" min="0" step="0.5" value="${r.p}" onchange="merSet(${i},'p',this.value)" style="width:90px"></td><td><input type="number" min="0" step="0.5" value="${r.m||""}" placeholder="?" onchange="merSet(${i},'m',this.value)" style="width:90px"></td><td><button class="sec" onclick="merDel(${i})" aria-label="Quitar">✕</button></td></tr>`).join("")+"</tbody></table>";
+ const lv=nivel(),base=merTot()||(+$("bar").value||0),ex=+$("mex").value||0,alt=Math.min(40,base+ex),room=MER.reduce((t,r)=>t+(r.m?Math.max(0,r.m-(+r.p||0)):0),0);$("mexv").textContent=ex;
+ const run=b=>{const p=mcSim({mu:lv.mu,sd:lv.sd,conc:b/4,N:2500});return {t:p[0]*100,c:p.slice(0,5).reduce((a,x)=>a+x,0)*100}};
+ const bs=[...new Set([15,19,23,27,31,35,40,base,alt])].sort((a,b)=>a-b),R={};bs.forEach(b=>R[b]=run(b));
+ $("mersum").innerHTML=`${merTot()?`Tienes <b>${f(base,1)}</b> de 40 puntos`:`Aún no has apuntado méritos: uso el baremo que tienes puesto en el simulador (<b>${f(base,1)}</b> de 40)`}`+(room>0?` y, según los máximos que has apuntado, te quedan <b>${f(room,1)}</b> por conseguir`:"")+`. Cada punto suma 0,075 a la nota final, unos 1,6 aciertos. Con tu nivel actual: TEAR <b>${f(R[base].t,0)} %</b>, entras en los 5 primeros <b>${f(R[base].c,0)} %</b>`+(ex>0?`. Con <b>${f(alt,1)}</b> puntos: TEAR <b style="color:var(--ok)">${f(R[alt].t,0)} %</b> (${R[alt].t>=R[base].t?"+":""}${f(R[alt].t-R[base].t,0)}), 5 primeros <b style="color:var(--ok)">${f(R[alt].c,0)} %</b>.`:". Mueve el deslizador para ver qué te aportaría sumar puntos.");
+ $("merchart").innerHTML=bs.map(b=>`<div style="display:flex;align-items:center;gap:8px;margin:3px 0;${b===base?"outline:1px solid #d4b25a;":b===alt?"outline:1px solid #8fd16a;":""}border-radius:8px;padding:2px 4px"><span style="width:92px;font-size:13px">${f(b,1)} puntos${b===base?" (tú)":b===alt&&ex>0?" (si…)":""}</span><div style="flex:1;height:14px;background:#171d14;border-radius:7px"><div style="height:100%;width:${R[b].t}%;border-radius:7px;background:linear-gradient(90deg,#e08a2e,#d4b25a)"></div></div><b style="width:150px;font-size:12px">TEAR ${f(R[b].t,0)} % · top 5 ${f(R[b].c,0)} %</b></div>`).join("")}catch(e){}}
+$("meradd").onclick=()=>{MER.push({n:"Nuevo mérito",p:0,m:0});lsS("meritos",MER);mer()};
+$("meruse").onclick=()=>{if(merTot()){$("bar").value=merTot();refresh()}};
+$("mex").oninput=mer;
+{const _b=bar_;bar_=function(){_b();mer()}}
+// --- cuenta atrás
+function cdown(){try{const el=$("cdw");if(!el)return;const i=+$("obj").value||0,conc=(+$("bar").value||0)/4,B=D.map(baseOf),sd=Math.sqrt(.12*.12+.15*.15),n80=Math.ceil(((10*(B[i]+.84*sd)-3*conc)/7-1.425)*15),m=mediaA(),fx=$("fx").value,dias=fx?Math.ceil((new Date(fx)-new Date())/864e5):null,gap=n80-m;
+ const c=(a,b,col)=>`<div class="card" style="border-top:3px solid ${col}"><div class="note">${a}</div><div style="font:900 24px 'Big Shoulders Display',Impact,sans-serif">${b}</div></div>`;
+ el.innerHTML=c("Fecha del examen",`<input type="date" id="cdf" value="${fx||""}" style="width:150px;font-size:13px" aria-label="Fecha del examen">${dias==null?"":` <span style="font-size:15px">${dias>0?"· "+dias+" días":"· ya"}</span>`}`,"#d4b25a")+c("Tu media de aciertos",f(m,1)+" aciertos","#6fb7c9")+c("Para "+(i+1)+"º "+SN[i]+" (8 de 10)",n80+" aciertos","#8fd16a")+c("Te faltan",gap<=0?"nada: ya estás ahí":f(gap,1)+" aciertos","#d86a5a")+(dias>0&&gap>0?c("Ritmo necesario","+"+f(gap/(dias/7),2)+" por semana","#a7b3e8"):"");
+ $("cdf").onchange=()=>{$("fx").value=$("cdf").value;lsS("fx_fecha",$("cdf").value);refresh()}}catch(e){}}
+{const _p=plan;plan=function(){_p();cdown()}}
+{const sv=lsG("fx_fecha","");if(sv&&$("fx"))$("fx").value=sv;if($("fx")&&$("fx").addEventListener)$("fx").addEventListener("change",()=>lsS("fx_fecha",$("fx").value))}
+
+/* ===== VERSIÓN WEB PÚBLICA ===== */
+function demoB(){const el=$("demob");if(!el)return;const d=!SES.some(s=>!s.p&&!s.demo);el.innerHTML=d?`<div class="card" style="border-color:#e08a2e"><b class="sm">Estás viendo datos de ejemplo</b> (8 tests inventados). Escribe tus aciertos arriba y todo se recalcula con los tuyos.</div>`:`<div class="note">Calculando con tus ${fl().length} tests.</div>`}
+{const _r=refresh;refresh=function(){_r();demoB()}}
+$("qgo").onclick=()=>{const v=($("qa").value||"").split(/[^0-9]+/).filter(Boolean).map(Number).filter(x=>x>=0&&x<=105);if(!v.length){$("qm").textContent="Escribe al menos un número entre 0 y 105.";return}
+ const hoyS=new Date().toLocaleDateString("es-ES"),base=SES.filter(s=>!s.demo&&!s.p).length;
+ v.forEach((a,k)=>{const o={n:base+k+1,d:hoyS,c:null,a,f:null,ar:null,nf:Math.round((1.425+a/15)*1000)/1000};SES.push(o);EX.push(o)});
+ lsS("ses_extra",EX);$("qa").value="";$("qm").textContent=v.length+" tests cargados.";refresh()};
+$("org").innerHTML=CITIES.map(c=>`<option>${c[0]}</option>`).join("");$("org").value=ORG.n;
+$("org").onchange=()=>{const c=CITIES.find(x=>x[0]===$("org").value);if(!c)return;ORG={n:c[0],lat:c[1],lon:c[2]};lsS("origen",ORG.n);geo();refresh()};
+$("shr").onclick=()=>{const u=location.href,d={title:"Simulador Tropa y Marinería 2027",url:u};if(navigator.share){navigator.share(d).catch(()=>{})}else if(navigator.clipboard){navigator.clipboard.writeText(u);$("shr").textContent="Enlace copiado"}};
+demoB();
+
+/* ===== WEB: pestaña info, destinos tapados, borrado y guardas ===== */
+$("t6").onclick=()=>showTab(5);TB.push("t6");TPN.push("tabInfo");
+function lshadow(){try{const el=$("lshd");if(!el)return;const B=D.map(baseOf),out=[];
+ for(let k=1;k<B.length;k++){let m=Infinity,j=-1;for(let q=0;q<k;q++)if(B[q]<m){m=B[q];j=q}if(B[k]>=m)out.push([k,j,B[k],m])}
+ el.innerHTML=out.length?`<b style="color:var(--acc2)">Aviso de orden:</b> ${out.length===1?"este destino está":"estos destinos están"} «tapado${out.length>1?"s":""}» con los cortes esperados.`+out.map(x=>`<div class="shd"><b>${x[0]+1}.º ${SN[x[0]]}</b>: corte esperado ${f(x[2])}, igual o mayor que el de ${x[1]+1}.º ${SN[x[1]]} (${f(x[3])}). Quien lo supera ya entra en uno anterior, así que solo te tocaría si los cortes se mueven. Probabilidad ahora: <b>${f(PR[x[0]]*100,0)} %</b>.</div>`).join("")+'<p class="note">No cambio tu orden: es tu decisión. Si quieres de verdad uno de estos destinos, plantéate subirlo en la lista.</p>':'<div class="note" style="color:var(--ok)">✔ Con los cortes esperados, todos tus destinos son alcanzables en el orden que has puesto.</div>'}catch(e){}}
+{const _l=lrender;lrender=function(){_l();lshadow()}}
+{const _r2=refresh;refresh=function(){try{_r2()}catch(e){console.error(e);const b=$("demob");if(b)b.innerHTML='<div class="card" style="border-color:var(--no)">Algo ha fallado al calcular. Recarga la página; si se repite, usa «Borrar mis datos guardados» al final.</div>'}}}
+$("wipe").onclick=()=>{if($("wipe").dataset.s!=="1"){$("wipe").dataset.s="1";$("wipe").textContent="Pulsa otra vez para confirmar";return}try{localStorage.clear()}catch(e){}location.reload()};
+refresh();
+
+/* ===== LEGAL ===== */
+$("t7").onclick=()=>showTab(6);TB.push("t7");TPN.push("tabLegal");
+function legalRender(){const gc=/^[a-z0-9-]+$/i.test(CONFIG.goatcounter||"");
+ document.querySelectorAll("[data-l]").forEach(e=>{const k=e.dataset.l;e.textContent=k==="anio"?new Date().getFullYear():CONFIG[k]||""});
+ document.querySelectorAll("[data-gc]").forEach(e=>{e.hidden=(e.dataset.gc==="on")!==gc});
+ $("fpriv").innerHTML="<b>Privacidad.</b> Tus tests, tu lista y tu ciudad se guardan solo en tu navegador y no se envían a ningún sitio. Esta web no usa cookies."+(gc?" Cuenta las visitas de forma anónima con GoatCounter (sin cookies)":"")+(gc?". ":" ")+"Usa «Mi resumen» para hacer una copia de seguridad.";
+ $("legalwarn").hidden=!/RELLENAR/.test(CONFIG.titular+CONFIG.email);
+ if(gc&&document.head&&document.createElement){const s=document.createElement("script");s.async=true;s.dataset.goatcounter="https://"+CONFIG.goatcounter+".goatcounter.com/count";s.src="https://gc.zgo.at/count.js";document.head.appendChild(s)}}
+legalRender();
+mtInit();</script>
+
+</body>
+</html>
