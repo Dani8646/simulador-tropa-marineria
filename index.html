@@ -5,7 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Simulador Tropa Marinería</title>
 <meta name="description" content="Simulador gratuito y no oficial de notas de corte de Tropa y Marinería 2027: tu nota, tu destino según tu orden de preferencia y cuántos aciertos te faltan.">
-<meta property="og:title" content="Simulador Tropa y Marinería 2027"><meta property="og:description" content="Calcula qué nota necesitas y qué destino te tocaría. Gratis, sin registro y no oficial.">
+<link rel="canonical" href="https://dani8646.github.io/simulador-tropa-marineria/">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta property="og:type" content="website"><meta property="og:locale" content="es_ES"><meta property="og:site_name" content="Simulador Tropa y Marinería 2027">
+<meta property="og:title" content="Simulador Tropa y Marinería 2027 · notas de corte y destinos"><meta property="og:description" content="Calcula tu nota final, tu probabilidad por destino y cuántos aciertos te faltan. Gratis, sin registro y no oficial.">
+<meta property="og:url" content="https://dani8646.github.io/simulador-tropa-marineria/"><meta property="og:image" content="https://dani8646.github.io/simulador-tropa-marineria/og-image.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Simulador de notas de corte de Tropa y Marinería 2027">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Simulador Tropa y Marinería 2027"><meta name="twitter:description" content="Tu nota final, tu probabilidad por destino y cuántos aciertos te faltan. Gratis y sin registro."><meta name="twitter:image" content="https://dani8646.github.io/simulador-tropa-marineria/og-image.jpg">
 
 <meta name="theme-color" content="#0a0d08">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Simulador Tropa y Marinería 2027","applicationCategory":"EducationalApplication","operatingSystem":"Web","inLanguage":"es","isAccessibleForFree":true,"description":"Simulador gratuito y no oficial de notas de corte de Tropa y Marinería 2027."}</script>
@@ -1011,7 +1017,6 @@ $("qgo").onclick=()=>{const v=($("qa").value||"").split(/[^0-9]+/).filter(Boolea
  lsS("ses_extra",EX);$("qa").value="";$("qm").textContent=v.length+" tests cargados.";refresh()};
 $("org").innerHTML=CITIES.map(c=>`<option>${c[0]}</option>`).join("");$("org").value=ORG.n;
 $("org").onchange=()=>{const c=CITIES.find(x=>x[0]===$("org").value);if(!c)return;ORG={n:c[0],lat:c[1],lon:c[2]};lsS("origen",ORG.n);geo();refresh()};
-$("shr").onclick=()=>{const u=location.href,d={title:"Simulador Tropa y Marinería 2027",url:u};if(navigator.share){navigator.share(d).catch(()=>{})}else if(navigator.clipboard){navigator.clipboard.writeText(u);$("shr").textContent="Enlace copiado"}};
 demoB();
 
 /* ===== WEB: pestaña info, destinos tapados, borrado y guardas ===== */
@@ -1021,6 +1026,11 @@ function lshadow(){try{const el=$("lshd");if(!el)return;const B=D.map(baseOf),ou
  el.innerHTML=out.length?`<b style="color:var(--acc2)">Aviso de orden:</b> ${out.length===1?"este destino está":"estos destinos están"} «tapado${out.length>1?"s":""}» con los cortes esperados.`+out.map(x=>`<div class="shd"><b>${x[0]+1}.º ${SN[x[0]]}</b>: corte esperado ${f(x[2])}, igual o mayor que el de ${x[1]+1}.º ${SN[x[1]]} (${f(x[3])}). Quien lo supera ya entra en uno anterior, así que solo te tocaría si los cortes se mueven. Probabilidad ahora: <b>${f(PR[x[0]]*100,0)} %</b>.</div>`).join("")+'<p class="note">No cambio tu orden: es tu decisión. Si quieres de verdad uno de estos destinos, plantéate subirlo en la lista.</p>':'<div class="note" style="color:var(--ok)">✔ Con los cortes esperados, todos tus destinos son alcanzables en el orden que has puesto.</div>'}catch(e){}}
 {const _l=lrender;lrender=function(){_l();lshadow()}}
 {const _r2=refresh;refresh=function(){try{_r2()}catch(e){console.error(e);const b=$("demob");if(b)b.innerHTML='<div class="card" style="border-color:var(--no)">Algo ha fallado al calcular. Recarga la página; si se repite, usa «Borrar mis datos guardados» al final.</div>'}}}
+(function(){const URLW=location.origin+location.pathname,T="Simulador Tropa y Marinería 2027",X="Calcula tu nota final y tu probabilidad por destino. Gratis y sin registro.";
+async function sh(btn){const t0=btn.textContent;try{if(navigator.share){await navigator.share({title:T,text:X,url:URLW});return}}catch(e){if(e&&e.name==="AbortError")return}
+let ok=false;try{await navigator.clipboard.writeText(URLW);ok=true}catch(e){try{const a=document.createElement("textarea");a.value=URLW;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();ok=document.execCommand("copy");a.remove()}catch(e2){}}
+btn.textContent=ok?"¡Enlace copiado!":URLW;setTimeout(()=>{btn.textContent=t0},2500)}
+["shr"].forEach(i=>{const b=$(i);if(b)b.onclick=()=>sh(b)})})();
 $("wipe").onclick=()=>{if($("wipe").dataset.s!=="1"){$("wipe").dataset.s="1";$("wipe").textContent="Pulsa otra vez para confirmar";return}try{localStorage.clear()}catch(e){}location.reload()};
 refresh();
 
